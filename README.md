@@ -1,6 +1,5 @@
 
-
-<img title="Title" alt="title" src="./doc/images/title.png" height="100">
+# miniPIC for CExA
 
 ## Presentation
 
@@ -27,39 +26,11 @@ miniPIC is a playground for computer science and HPC experiments applied to the 
         <td style="background-color: #B1E0CB">LLVM 14, GCC 10</td>
     </tr>
     <tr>
-        <td>SYCL</td>
-        <td></td>
-        <td style="background-color: #B1E0CB">LLVM, GCC, OneAPI</td>
-        <td style="background-color: #B1E0CB">OneAPI</td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-    </tr>
-    <tr>
         <td>Kokkos</td>
         <td>OpenMP</td>
         <td style="background-color: #B1E0CB">LLVM, GCC, OneAPI</td>
         <td style="background-color: #E0B4B2">Not tested</td>
         <td style="background-color: #B1E0CB">LLVM, GCC</td>
-    </tr>
-    <tr>
-        <td>Eventify</td>
-        <td></td>
-        <td style="background-color: #B1E0CB"></td>
-        <td style="background-color: #B1E0CB"></td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-    </tr>
-    <tr>
-        <td>OpenMP task</td>
-        <td></td>
-        <td style="background-color: #B1E0CB"></td>
-        <td style="background-color: #B1E0CB"></td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-    </tr>
-    <tr>
-        <td>STDPAR</td>
-        <td></td>
-        <td style="background-color: #B1E0CB"></td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-        <td style="background-color: #B1E0CB"></td>
     </tr>
 </table>
 
@@ -80,41 +51,8 @@ miniPIC is a playground for computer science and HPC experiments applied to the 
         <td style="background-color: #B1E0CB">HIP (tested on MI250, MI300)</td>
         <td style="background-color: #B1E0CB">Tested on Intel MAX 1550</td>
     </tr>
-    <tr>
-        <td>SYCL</td>
-        <td></td>
-        <td style="background-color: #B1E0CB">tested on V100, A100</td>
-        <td style="background-color: #B1E0CB">Tested on MI250</td>
-        <td style="background-color: #B1E0CB">Tested on Intel MAX 1550</td>
-    </tr>
-    <tr>
-        <td>THRUST</td>
-        <td></td>
-        <td style="background-color: #B1E0CB">tested on V100, A100, H100, GH200</td>
-        <td style="background-color: #B1E0CB">Tested on MI250, MI300</td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-    </tr>
-    <tr>
-        <td>STDPAR</td>
-        <td></td>
-        <td style="background-color: #B1E0CB">tested on V100, A100, H100, GH200</td>
-        <td style="background-color: #B1E0CB">Tested on MI250, MI300</td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-    </tr>
-    <tr>
-        <td>OpenACC</td>
-        <td></td>
-        <td style="background-color: #B1E0CB">tested on V100, A100 (nvhpc 23.7)</td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-    </tr>
-    <tr>
-        <td>OpenMP target</td>
-        <td></td>
-        <td style="background-color: #B1E0CB">Tested (nvhpc 23.7) on V100, A100</td>
-        <td style="background-color: #B1E0CB">Tested on MI250</td>
-        <td style="background-color: #E0B4B2">Not tested</td>
-    </tr>  
+
+
 </table>
 
 ## Repository structure
@@ -128,7 +66,6 @@ miniPIC is a playground for computer science and HPC experiments applied to the 
 - `script`: Python scripts to read and plot diags
 - `tests`: simulation tests used to validate the code
 - `validation`: Python validation scripts
-- `unit_tests`: unit tests
 
 
 ## How to use miniPIC
