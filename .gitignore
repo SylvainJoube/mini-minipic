@@ -22,3 +22,4 @@ build*
 html*
 latex*
 *.opt.yaml
+external/

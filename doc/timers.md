@@ -116,9 +116,9 @@ And the file is terminated by the last key `main_loop` that represents the total
 }
 ```
 
-### How to understand the timers for a specific time step
+### How to understand the timers for a specific time step
 
-The timers for a specific time setp are decomposed into different parts of the code.
+The timers for a specific time step are decomposed into different parts of the code.
 
 Depending on the code section, timers can be placed inside parallel loop (in OpenMP for or OpenMP task for instance ) or outside the parallel loop.
 Sometime, a timer for a specific code section is the combination of different subparts with one being outside a parallel loop and the other inside a parallel loop.
