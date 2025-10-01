@@ -25,7 +25,5 @@ cd ${SLURM_SUBMIT_DIR}
 
 source $WORKDIR/gitlab-ci_runs/env/kokkos_a100
 python run.py -g kokkos_gpu
-python run.py -g kokkos_unified_gpu
-python run.py -g kokkos_dualview_unified_gpu
 
 

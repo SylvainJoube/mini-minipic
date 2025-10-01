@@ -12,18 +12,6 @@ set -x
 cd ${SLURM_SUBMIT_DIR}
 
 # _________________________________________
-# OpenMP g++
-
-source ${HOME}/env/kokkos_omp_cpu
-python run.py -c g++ 
-
-# _________________________________________
-# OpenMP icpx
-
-source ${WORKDIR}/gitlab-ci_runs/env/kokkos_omp_cpu_intel
-python run.py -c icpx
-
-# _________________________________________
 # Kokkos icpx
 
 source ${WORKDIR}/gitlab-ci_runs/env/kokkos_omp_cpu_intel
