@@ -10,7 +10,6 @@
 #ifndef FIELD_H
 #define FIELD_H
 
-#include "Backend.hpp"
 #include "Headers.hpp"
 #include <cmath>
 #include <iostream>
@@ -65,7 +64,6 @@ public:
   //! \param nx number of grid points in the x direction
   //! \param ny number of grid points in the y direction
   //! \param nz number of grid points in the z direction
-  //! \param backend backend to use for initialization and memory allocation
   //! \param v default value to fill the field
   //! \param dual_x primal or dual in the x direction
   //! \param dual_y primal or dual in the y direction
@@ -75,13 +73,12 @@ public:
   Field(const int nx,
         const int ny,
         const int nz,
-        Backend &backend,
         const T v,
         const int dual_x,
         const int dual_y,
         const int dual_z,
         const std::string name) {
-    allocate(nx, ny, nz, backend, v, dual_x, dual_y, dual_z, name);
+    allocate(nx, ny, nz, v, dual_x, dual_y, dual_z, name);
   }
 
   // _________________________________________________________________________________________
@@ -181,7 +178,6 @@ public:
   void allocate(const int nx,
                 const int ny,
                 const int nz,
-                Backend &backend,
                 const T v        = 0,
                 const int dual_x = 0,
                 const int dual_y = 0,

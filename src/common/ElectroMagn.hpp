@@ -52,9 +52,8 @@ public:
   //
   //! \brief Memory allocation for global fields and init parameters
   //! \param params global parameters
-  //! \param backend backend properties
   // ____________________________________________________________________________
-  void allocate(const Params &params, Backend &backend) {
+  void allocate(const Params &params) {
     nx_p_m = params.nx_p;
     ny_p_m = params.ny_p;
     nz_p_m = params.nz_p;
@@ -73,24 +72,24 @@ public:
     inv_cell_volume_m = params.inv_cell_volume;
 
     DEBUG("Start Allocate current arrays");
-    Jx_m.allocate(nx_d_m, ny_p_m + 2, nz_p_m + 2, backend, 0.0, 1, 0, 0, "Jx");
-    Jy_m.allocate(nx_p_m + 2, ny_d_m, nz_p_m + 2, backend, 0.0, 0, 1, 0, "Jy");
-    Jz_m.allocate(nx_p_m + 2, ny_p_m + 2, nz_d_m, backend, 0.0, 0, 0, 1, "Jz");
+    Jx_m.allocate(nx_d_m, ny_p_m + 2, nz_p_m + 2, 0.0, 1, 0, 0, "Jx");
+    Jy_m.allocate(nx_p_m + 2, ny_d_m, nz_p_m + 2, 0.0, 0, 1, 0, "Jy");
+    Jz_m.allocate(nx_p_m + 2, ny_p_m + 2, nz_d_m, 0.0, 0, 0, 1, "Jz");
     DEBUG("End Allocate current arrays");
 
     // Jx_m.allocate(nx_d_m, ny_p_m, nz_p_m, 0.0, 1, 0, 0, "Jx");
     // Jy_m.allocate(nx_p_m, ny_d_m, nz_p_m, 0.0, 0, 1, 0, "Jy");
     // Jz_m.allocate(nx_p_m, ny_p_m, nz_d_m, 0.0, 0, 0, 1, "Jz");
     DEBUG("Start Allocate electric fields");
-    Ex_m.allocate(nx_d_m, ny_p_m, nz_p_m, backend, params.E0_[0], 1, 0, 0, "Ex");
-    Ey_m.allocate(nx_p_m, ny_d_m, nz_p_m, backend, params.E0_[1], 0, 1, 0, "Ey");
-    Ez_m.allocate(nx_p_m, ny_p_m, nz_d_m, backend, params.E0_[2], 0, 0, 1, "Ez");
+    Ex_m.allocate(nx_d_m, ny_p_m, nz_p_m, params.E0_[0], 1, 0, 0, "Ex");
+    Ey_m.allocate(nx_p_m, ny_d_m, nz_p_m, params.E0_[1], 0, 1, 0, "Ey");
+    Ez_m.allocate(nx_p_m, ny_p_m, nz_d_m, params.E0_[2], 0, 0, 1, "Ez");
     DEBUG("End Allocate electric fields");
 
     DEBUG("Start Allocate magnetic fields");
-    Bx_m.allocate(nx_p_m, ny_d_m, nz_d_m, backend, params.B0_[0], 0, 1, 1, "Bx");
-    By_m.allocate(nx_d_m, ny_p_m, nz_d_m, backend, params.B0_[1], 1, 0, 1, "By");
-    Bz_m.allocate(nx_d_m, ny_d_m, nz_p_m, backend, params.B0_[2], 1, 1, 0, "Bz");
+    Bx_m.allocate(nx_p_m, ny_d_m, nz_d_m, params.B0_[0], 0, 1, 1, "Bx");
+    By_m.allocate(nx_d_m, ny_p_m, nz_d_m, params.B0_[1], 1, 0, 1, "By");
+    Bz_m.allocate(nx_d_m, ny_d_m, nz_p_m, params.B0_[2], 1, 1, 0, "Bz");
     DEBUG("End Allocate magnetic fields");
 
     // Load all field to the device

@@ -1346,7 +1346,7 @@ auto solveBC(Params &params, ElectroMagn &em) -> void {
 //! \param[in] Params & params - global constant parameters
 //! \param[in] Patch & patch - current patch
 // ______________________________________________________
-void identify_particles_to_move(Params &params, Patch &patch, Backend &backend) {
+void identify_particles_to_move(Params &params, Patch &patch) {
 
 }
 
