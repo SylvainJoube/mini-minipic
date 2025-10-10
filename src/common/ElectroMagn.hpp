@@ -104,10 +104,6 @@ public:
   // ____________________________________________________________________________
   template <class T_space> void reset_currents(const T_space space) {
 
-    // Jx_m.reset();
-    // Jy_m.reset();
-    // Jz_m.reset();
-
     Jx_m.reset(space);
     Jy_m.reset(space);
     Jz_m.reset(space);

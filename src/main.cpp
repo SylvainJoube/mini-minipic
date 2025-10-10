@@ -16,7 +16,8 @@
 #include "SubDomain.hpp"
 
 // Load a setup
-#include "study_thermal.hpp"
+//#include "study_thermal.hpp"
+#include "beam.hpp"
 // #include "study_sorted.hpp"
 // #include "study_random.hpp"
 // #include"default_gpu.hpp"
