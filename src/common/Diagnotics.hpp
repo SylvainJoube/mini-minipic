@@ -357,10 +357,10 @@ void particle_binning(std::string diag_name,
         }
 
         if (data_code == 0) {
-          diag_data[global_index] += static_cast<double>(patches[i_patch].particles_m[is].w_h(ip));
+          diag_data[global_index] += static_cast<double>(patches[i_patch].particles_m[is].w_.h(ip));
         } else if (data_code == 1) {
           diag_data[global_index] +=
-            static_cast<double>(patches[i_patch].particles_m[is].w_h(ip) * params.inv_cell_volume);
+            static_cast<double>(patches[i_patch].particles_m[is].w_.h(ip) * params.inv_cell_volume);
         } else if (data_code == 2) {
           diag_data[global_index] += 1;
         }
@@ -542,7 +542,7 @@ void particle_cloud(std::string diag_name,
       const unsigned int n_particles = patches[i_patch].particles_m[is].size();
       for (unsigned int ip = 0; ip < n_particles; ++ip) {
 
-        binary_file.write((char *)(&patches[i_patch].particles_m[is].w_h(ip)), sizeof(double));
+        binary_file.write((char *)(&patches[i_patch].particles_m[is].w_.h(ip)), sizeof(double));
 
         binary_file.write((char *)(&patches[i_patch].particles_m[is].x_.h(ip)), sizeof(double));
         binary_file.write((char *)(&patches[i_patch].particles_m[is].y_.h(ip)), sizeof(double));
@@ -603,7 +603,7 @@ void particle_cloud(std::string diag_name,
     for (size_t i_patch = 0; i_patch < patches.size(); i_patch++) {
       for (unsigned int ip = 0; ip < patches[i_patch].particles_m[is].size(); ++ip) {
 
-        vtk_file << patches[i_patch].particles_m[is].w_h(ip) << " ";
+        vtk_file << patches[i_patch].particles_m[is].w_.h(ip) << " ";
 
       } // End particle loop
     } // End patch loop

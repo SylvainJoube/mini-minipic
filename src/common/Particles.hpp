@@ -70,36 +70,6 @@ public:
   //! This flag when false prevents the allocation of E and B fields
   bool with_electromagnetic_fields_ = true;
 
-  // ________________________________________________________
-  // Host data accessors
-
-  //! \brief w accessor
-  //! \param[in] ip particle index
-  INLINE T &w_h(unsigned int ip) { return weight_.h(ip); }
-
-  //! \brief Ex accessor
-  //! \param[in] ip particle index
-  INLINE T &Ex_h(unsigned int ip) { return Ex_.h(ip); }
-
-  //! \brief Ey accessor
-  //! \param[in] ip particle index
-  INLINE T &Ey_h(unsigned int ip) { return Ey_.h(ip); }
-
-  //! \brief Ez accessor
-  //! \param[in] ip particle index
-  INLINE T &Ez_h(unsigned int ip) { return Ez_.h(ip); }
-
-  //! \brief Bx accessor
-  //! \param[in] ip particle index
-  INLINE T &Bx_h(unsigned int ip) { return Bx_.h(ip); }
-
-  //! \brief By accessor
-  //! \param[in] ip particle index
-  INLINE T &By_h(unsigned int ip) { return By_.h(ip); }
-
-  //! \brief Bz accessor
-  //! \param[in] ip particle index
-  INLINE T &Bz_h(unsigned int ip) { return Bz_.h(ip); }
 
   //! \brief Gamma accessor using the momentum
   //! \param[in] ip particle index
@@ -388,13 +358,13 @@ public:
 
       // gamma_inv_sum += std::abs(gamma_inv_h(ip));
 
-      Ex_sum += std::abs(Ex_h(ip));
-      Ey_sum += std::abs(Ey_h(ip));
-      Ez_sum += std::abs(Ez_h(ip));
+      Ex_sum += std::abs(Ex_.h(ip));
+      Ey_sum += std::abs(Ey_.h(ip));
+      Ez_sum += std::abs(Ez_.h(ip));
 
-      Bx_sum += std::abs(Bx_h(ip));
-      By_sum += std::abs(By_h(ip));
-      Bz_sum += std::abs(Bz_h(ip));
+      Bx_sum += std::abs(Bx_.h(ip));
+      By_sum += std::abs(By_.h(ip));
+      Bz_sum += std::abs(Bz_.h(ip));
     }
 
     std::cerr << std::scientific << std::setprecision(15) << "x sum: " << x_sum
@@ -416,7 +386,7 @@ private:
 
     for (size_t ip = 0; ip < size(); ++ip) {
       const T gamma = sqrt(1. + mx_.h(ip) * mx_.h(ip) + my_.h(ip) * my_.h(ip) + mz_.h(ip) * mz_.h(ip));
-      kinetic_energy += w_h(ip) * (gamma - 1.);
+      kinetic_energy += w_.h(ip) * (gamma - 1.);
     }
 
     return kinetic_energy;
