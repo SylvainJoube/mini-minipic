@@ -164,6 +164,7 @@ public:
 #if defined(__MINIPIC_KOKKOS_NON_UNIFIED__)
     Kokkos::resize(data_, new_size);
     Kokkos::resize(data_h_, new_size);
+    size_ = new_size;
 #elif defined(__MINIPIC_KOKKOS_UNIFIED__)
     Kokkos::resize(data_, new_size);
     size_ = new_size;

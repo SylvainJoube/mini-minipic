@@ -68,10 +68,15 @@ public:
                 << "\n"
                 << std::endl;
 
+      em_.sync(minipic::device, minipic::host);
       for (size_t ip = 0; ip < patches_.size(); ip++) {
+        patches_[ip].sync(minipic::device, minipic::host);
         operators::interpolate(em_, patches_[ip]);
         operators::push_momentum(patches_[ip], -0.5 * params.dt);
+        patches_[ip].sync(minipic::host, minipic::device);
+
       }
+      em_.sync(minipic::host, minipic::device);
     }
 
     // For each species, print :
@@ -209,6 +214,8 @@ public:
     }
 
     for (size_t idx_patch = 0; idx_patch < patches_.size(); idx_patch++) {
+      em_.sync(minipic::device, minipic::host);
+      patches_[idx_patch].sync(minipic::device, minipic::host);
 
       // Interpolate from global field to particles in patch
       DEBUG("  -> start interpolate for patch " << idx_patch);
@@ -223,6 +230,9 @@ public:
       operators::push(patches_[idx_patch], params.dt);
 
       DEBUG("  -> stop push");
+
+      patches_[idx_patch].sync(minipic::host, minipic::device);
+      em_.sync(minipic::host, minipic::device);
 
       // Do boundary conditions on global domain
       DEBUG("  -> Patch " << idx_patch << ": start pushBC");
@@ -255,11 +265,15 @@ public:
         // #else
 
         // Project in buffers local to the patches
+        patches_[idx_patch].sync(minipic::device, minipic::host);
+
         DEBUG("  -> Patch " << idx_patch << ": start project");
         
         operators::project(params, patches_[idx_patch]);
 
         DEBUG("  -> stop project");
+
+        patches_[idx_patch].sync(minipic::host, minipic::device);
 
         // #endif
       }
@@ -270,6 +284,11 @@ public:
     // Sum all species contribution in the local and global current grids
 
     if (params.current_projection || params.n_particles > 0) {
+
+      em_.sync(minipic::device, minipic::host);
+      for (size_t idx_patch = 0; idx_patch < patches_.size(); idx_patch++) {
+        patches_[idx_patch].sync(minipic::device, minipic::host);
+      }
 
       for (size_t idx_patch = 0; idx_patch < patches_.size(); idx_patch++) {
 
@@ -298,6 +317,10 @@ public:
         DEBUG("  -> Patch " << idx_patch << ": end local 2 global");
 
       }
+      for (size_t idx_patch = 0; idx_patch < patches_.size(); idx_patch++) {
+        patches_[idx_patch].sync(minipic::host, minipic::device);
+      }
+      em_.sync(minipic::host, minipic::device);
 
       // Perform the boundary conditions for current
       DEBUG("  -> start current BC")
@@ -313,6 +336,8 @@ public:
 
     if (params.maxwell_solver) {
 
+      em_.sync(minipic::device, minipic::host);
+
       // Generate a laser field with an antenna
       for (size_t iantenna = 0; iantenna < params.antenna_profiles_.size(); iantenna++) {
         operators::antenna(params,
@@ -320,7 +345,9 @@ public:
                            params.antenna_profiles_[iantenna],
                            params.antenna_positions_[iantenna],
                            it * params.dt);
+
       }
+
 
       // Solve the Maxwell equation
       DEBUG("  -> start solve Maxwell")
@@ -328,6 +355,9 @@ public:
       operators::solve_maxwell(params, em_);
 
       DEBUG("  -> stop solve Maxwell")
+
+      em_.sync(minipic::host, minipic::device);
+
 
       // Boundary conditions on EM fields
       DEBUG("  -> start solve BC")

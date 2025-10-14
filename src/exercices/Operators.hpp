@@ -29,9 +29,6 @@ auto interpolate(ElectroMagn &em, Patch &patch) -> void {
 
     const int n_particles = patch.particles_m[is].size();
 
-    em.sync(minipic::device, minipic::host);
-    patch.particles_m[is].sync(minipic::device, minipic::host);
-
     field_t Ex = em.Ex_m.data_m_h;
     field_t Ey = em.Ey_m.data_m_h;
     field_t Ez = em.Ez_m.data_m_h;
@@ -245,9 +242,6 @@ auto interpolate(ElectroMagn &em, Patch &patch) -> void {
         }
         // particles_m[is].Bz_.d_view(part) = compute_interpolation(a, b, izp, coeffs, Bz);
       } // End for each particle
-
-    em.sync(minipic::host, minipic::device);
-    patch.particles_m[is].sync(minipic::host, minipic::device);
   } // Species loop
 }
 
@@ -267,7 +261,6 @@ auto push(Patch &patch, double dt) -> void {
     // q' = dt * (q/2m)
     const mini_float qp = patch.particles_m[is].charge_m * dt * 0.5 / patch.particles_m[is].mass_m;
 
-    patch.particles_m[is].sync(minipic::device, minipic::host);
     vector_t x = patch.particles_m[is].x_.data_h_;
     vector_t y = patch.particles_m[is].y_.data_h_;
     vector_t z = patch.particles_m[is].z_.data_h_;
@@ -336,8 +329,6 @@ auto push(Patch &patch, double dt) -> void {
         z(ip) += mz(ip) * dt * gamma_inv;
       }
 
-    patch.particles_m[is].sync(minipic::host, minipic::device);
-
     // Copy the data from the device to the host
     // patch.particles_m[is].copy_device_to_host();
 
@@ -367,7 +358,6 @@ auto push_momentum(Patch &patch, double dt) -> void {
     // q' = dt * (q/2m)
     const mini_float qp = patch.particles_m[is].charge_m * dt * 0.5 / patch.particles_m[is].mass_m;
 
-    patch.particles_m[is].sync(minipic::device, minipic::host);
     vector_t mx = patch.particles_m[is].mx_.data_h_;
     vector_t my = patch.particles_m[is].my_.data_h_;
     vector_t mz = patch.particles_m[is].mz_.data_h_;
@@ -426,7 +416,6 @@ auto push_momentum(Patch &patch, double dt) -> void {
         my(ip) = py;
         mz(ip) = pz;
       }
-    patch.particles_m[is].sync(minipic::host, minipic::device);
 
   } // end for species
 }
@@ -571,8 +560,6 @@ auto project(Params &params, Patch &patch) -> void {
       const double ymin = patch.inf_m[1];
       const double zmin = patch.inf_m[2];
 
-      patch.particles_m[is].sync(minipic::device, minipic::host);
-
       field_t Jx_loc = patch.vec_Jx_m[is].data_m_h;
       field_t Jy_loc = patch.vec_Jy_m[is].data_m_h;
       field_t Jz_loc = patch.vec_Jz_m[is].data_m_h;
@@ -668,11 +655,6 @@ auto project(Params &params, Patch &patch) -> void {
           Jz_loc(ixp + 1, iyp + 1, izd + 1) += (coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jzp;
         } // end for each particles
 
-      patch.particles_m[is].sync(minipic::host, minipic::device);
-      patch.vec_Jx_m[is].sync(minipic::host, minipic::device);
-      patch.vec_Jy_m[is].sync(minipic::host, minipic::device);
-      patch.vec_Jz_m[is].sync(minipic::host, minipic::device);
-
       patch.projected_[is] = true;
 
     } else {
@@ -697,7 +679,6 @@ auto solve_maxwell(const Params &params, ElectroMagn &em) -> void {
   /////     Solve Maxwell Ampere (E)
   // Electric field Ex (d,p,p)
 
-  em.sync(minipic::device, minipic::host);
   field_t Jx = em.Jx_m.data_m_h;
   field_t Jy = em.Jy_m.data_m_h;
   field_t Jz = em.Jz_m.data_m_h;
@@ -778,8 +759,6 @@ auto solve_maxwell(const Params &params, ElectroMagn &em) -> void {
       }
     }
   }
-
-  em.sync(minipic::host, minipic::device);
 
 } // end solve
 
@@ -1105,19 +1084,11 @@ auto solveBC(Params &params, ElectroMagn &em) -> void {
 //! \param[in] patch  current patch to handle
 // ______________________________________________________
 auto reduc_current(Patch &patch) -> void {
-  patch.vec_Jx_m[0].sync(minipic::device, minipic::host);
-  patch.vec_Jy_m[0].sync(minipic::device, minipic::host);
-  patch.vec_Jz_m[0].sync(minipic::device, minipic::host);
 
   for (int is = 1; is < patch.n_species_m; is++) {
 
     // Only if particles projected
     if (patch.projected_[is]) {
-
-      patch.vec_Jx_m[is].sync(minipic::device, minipic::host);
-      patch.vec_Jy_m[is].sync(minipic::device, minipic::host);
-      patch.vec_Jz_m[is].sync(minipic::device, minipic::host);
-
       field_t Jx_0  = patch.vec_Jx_m[0].data_m_h;
       field_t Jx_is = patch.vec_Jx_m[is].data_m_h;
 
@@ -1153,10 +1124,6 @@ auto reduc_current(Patch &patch) -> void {
 
     } // end check if particles
   } // end for species
-
-  patch.vec_Jx_m[0].sync(minipic::host, minipic::device);
-  patch.vec_Jy_m[0].sync(minipic::host, minipic::device);
-  patch.vec_Jz_m[0].sync(minipic::host, minipic::device);
 }
 
 // ____________________________________________________________________________
@@ -1181,11 +1148,6 @@ auto local2global(ElectroMagn &em, Patch &patch) -> void {
     const int i_global_d = patch.ix_origin_m;
     const int j_global_d = patch.iy_origin_m;
     const int k_global_d = patch.iz_origin_m;
-
-    patch.vec_Jx_m[0].sync(minipic::device, minipic::host);
-    patch.vec_Jy_m[0].sync(minipic::device, minipic::host);
-    patch.vec_Jz_m[0].sync(minipic::device, minipic::host);
-    em.sync(minipic::device, minipic::host);
 
     field_t Jx_0 = patch.vec_Jx_m[0].data_m_h;
     field_t Jx   = em.Jx_m.data_m_h;
@@ -1219,7 +1181,6 @@ auto local2global(ElectroMagn &em, Patch &patch) -> void {
         }
       }
     }
-    em.sync(minipic::host, minipic::device);
   } // end if total_particles
 }
 
@@ -1235,8 +1196,6 @@ auto antenna(Params &params,
              std::function<double(double, double, double)> profile,
              double x,
              double t) -> void {
-
-  em.Jz_m.sync(minipic::device, minipic::host);
 
   Field<mini_float> *J = &em.Jz_m;
 
@@ -1254,8 +1213,6 @@ auto antenna(Params &params,
       (*J)(ix, iy, iz) = profile(y, z, t);
     }
   }
-
-  em.Jz_m.sync(minipic::host, minipic::device);
 
 } // end antenna
 
