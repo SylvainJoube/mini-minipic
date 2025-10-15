@@ -63,6 +63,8 @@ int main(int argc, char *argv[]) {
 
     SubDomain subdomain;
 
+    timers.start(timers.initialization);
+
     // Creation of the domain
     subdomain.allocate(params);
 
@@ -71,16 +73,21 @@ int main(int argc, char *argv[]) {
 
     timers.stop(timers.initialization);
     timers.save_initialization();
-    timers.start(timers.main_loop);
 
     // ______________________________________________________
     //
     // Initial diagnostics
     // ______________________________________________________
 
+    std::cerr << " diag start" << std::endl;
+
     timers.start(timers.diags);
+    std::cerr << " timer diag done" << std::endl;
     subdomain.diagnostics(params, 0);
+    std::cerr << " diag done" << std::endl;
     timers.stop(timers.diags);
+    std::cerr << " timer diag done" << std::endl;
+
 
     // ______________________________________________________
     //
