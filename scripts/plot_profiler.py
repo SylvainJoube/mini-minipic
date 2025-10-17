@@ -6,6 +6,7 @@
 
 import glob
 import math
+
 # Import the modules
 import struct
 import sys
