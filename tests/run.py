@@ -398,7 +398,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
 
     # Compile
 
-    cmake_command = ["cmake", root_dir, "-DCMAKE_BUILD_TYPE=Release", "-DTEST=ON"]
+    cmake_command = ["cmake", root_dir, "-DMINIPIC_TEST=ON"]
     if compiler:
         cmake_command.append("-DCMAKE_CXX_COMPILER={}".format(compiler))
     cmake_command.extend(cmake)
