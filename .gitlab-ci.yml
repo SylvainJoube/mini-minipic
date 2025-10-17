@@ -7,7 +7,7 @@
 
 variables:
   # List of GPUs to exclude from the tests
-  EXCLUDED_GPUS: "ruche-gpu17"
+  EXCLUDED_GPUS: "ruche-gpu17,ruche-gpu16"
 
 # _____________________________________________________________________________
 #
