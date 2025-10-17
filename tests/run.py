@@ -71,6 +71,7 @@ parser.add_argument(
     ),
     default=None,
 )
+parser.add_argument("--build-dir", help="build directior, default to 'build'", default="build")
 parser.add_argument("-t", "--threads", help="default number of threads", default=None)
 parser.add_argument("-a", "--arguments", help="default arguments", default=None)
 parser.add_argument(
@@ -236,6 +237,8 @@ assert all(
 # Get local path
 working_dir = os.path.dirname(__file__)
 root_dir = os.path.dirname(working_dir)
+build_dir = os.path.join(root_dir, args.build_dir)
+
 
 # Add validation path to the PYTHONPATH
 sys.path.append("{}/validation".format(root_dir))
@@ -337,7 +340,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
     # bench parameters
 
     nb_threads = selected_config["threads"][ib]
-    bench_dir = os.path.join(working_dir, benchmark)
+    bench_dir = os.path.join(build_dir, benchmark)
 
     print("")
     print_line(terminal_size)
@@ -347,18 +350,19 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
     # Compilation
 
     # Create a directory for this benchmark
-    if os.path.exists(bench_dir):
-        shutil.rmtree(bench_dir, ignore_errors=True)
-    os.makedirs(bench_dir)
+    # if os.path.exists(bench_dir):
+    #     shutil.rmtree(bench_dir, ignore_errors=True)
+    os.makedirs(bench_dir, exist_ok=True)
 
-    # Go to the bench directory
-    os.chdir(bench_dir)
+    # # Go to the bench directory
+    # os.chdir(bench_dir)
 
     # Copy the main from src
     shutil.copy(os.path.join(root_dir, "src", "main.cpp"), bench_dir)
 
     # Change include
-    with open("main.cpp", "r") as file:
+    main_file_path = os.path.join(bench_dir, "main.cpp")
+    with open(main_file_path, "r") as file:
         main_file = file.readlines()
 
     start_index = 0
@@ -373,7 +377,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
 
     main_file[start_index + 1] = '#include "{}.hpp" \n'.format(benchmark)
 
-    with open("main.cpp", "w") as file:
+    with open(main_file_path, "w") as file:
         file.writelines(main_file)
 
     # Compile
@@ -388,7 +392,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
     print("")
     print(" ".join(cmake_command))
 
-    subprocess.run(cmake_command, check=True)
+    subprocess.run(cmake_command, cwd=bench_dir, check=True)
 
     make_command = ["cmake", "--build", bench_dir, "--parallel", "4"]
     print(" ".join(make_command))
@@ -396,7 +400,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
     subprocess.run(make_command, check=True)
 
     # Check
-    exe_exists = os.path.exists("./{}".format(executable_name))
+    exe_exists = os.path.exists(os.path.join(bench_dir, executable_name))
     assert exe_exists, "Executable not generated"
 
     # ____________________________________________________________________________
@@ -424,7 +428,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
         env_str = " ".join("{}={}".format(k, v) for k, v in current_env.items())
         print(env_str, " ".join(run_command))
 
-        subprocess.run(run_command, check=False, env={**(os.environ), **current_env})
+        subprocess.run(run_command, check=False, cwd=bench_dir, env={**(os.environ), **current_env})
 
         # ____________________________________________________________________________
         # Check results
@@ -440,6 +444,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
 
             module = importlib.import_module(benchmark, package=None)
 
+            os.chdir(bench_dir)
             module.validate(evaluate=evaluate, threshold=threshold)
 
             print("")
@@ -457,7 +462,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
             print("   -> Timers")
             print("")
 
-            with open("timers.json") as f:
+            with open(os.path.join(bench_dir, "timers.json")) as f:
                 raw_timers_dict = json.load(f)
 
             pic_it_time = raw_timers_dict["final"]["main loop (no diags)"][0]
@@ -476,7 +481,7 @@ for ib, benchmark in enumerate(selected_config["benchmarks"]):
             # if the file does not exist, create it
 
             ci_file_name = os.path.join(
-                working_dir, "ci_{}_{}_timers.json".format(benchmark, configuration)
+                build_dir, "ci_{}_{}_timers.json".format(benchmark, configuration)
             )
 
             if not os.path.exists(ci_file_name):
