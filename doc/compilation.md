@@ -49,8 +49,26 @@ make
 Python is used for testing and validation, and needs its own dependencies.
 
 ```sh
-pip install --user -r requirements.txt
+pip install --user .
 ```
+
+<details>
+
+<summary>
+Even better, you can use a virtual environment.
+</summary>
+
+```sh
+pip install --user virtualenv
+virtualenv --python python<x.y> $PWD/venv
+source venv/activate
+pip install .
+```
+
+with `x.y` the version of Python.
+By instance, `python3.12`.
+
+</details>
 
 ## Options
 
