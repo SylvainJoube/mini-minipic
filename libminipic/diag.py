@@ -1,4 +1,4 @@
-"""Functions to read minipic diags"""
+"""Functions to read minipic diags."""
 
 import struct
 

@@ -13,7 +13,7 @@ On a supercomputer, you may have to load a specific version of Python:
 module load python<x.y>
 ```
 
-The `libminipic` requires python ≥ 3.10.
+The `libminipic` requires python ≥ 3.11.
 
 You can list the available versions with:
 
