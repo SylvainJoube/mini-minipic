@@ -44,32 +44,6 @@ make
 
 <img title="Warning" alt="Warning" src="./images/warning.png" height="20"> By default, the code is compiled with Kokkos serial backend (sequential mode).
 
-### Python dependencies
-
-Python is used for testing and validation, and needs its own dependencies.
-
-```sh
-pip install --user .
-```
-
-<details>
-
-<summary>
-Even better, you can use a virtual environment.
-</summary>
-
-```sh
-pip install --user virtualenv
-virtualenv --python python<x.y> $PWD/venv
-source venv/activate
-pip install .
-```
-
-with `x.y` the version of Python.
-By instance, `python3.12`.
-
-</details>
-
 ## Options
 
 CMake useful options:

@@ -1,16 +1,54 @@
 # Python tools (libminipic)
 
 MiniPIC uses several tools gathered in the `libminipic` library.
+These tools are used for testing, validation, and plotting.
 
-Install this library and its dependencies locally with:
+Two commands and several scripts are available.
+
+## Python loading
+
+On a supercomputer, you may have to load a specific version of Python:
+
+```sh
+module load python<x.y>
+```
+
+The `libminipic` requires python ≥ 3.10.
+
+You can list the available versions with:
+
+```sh
+module avail python
+```
+
+## Installation
+
+Install the python tools with:
 
 ```sh
 pip install --user .
 ```
 
-Even better, install it in a virtual environment.
+<details>
 
-## `mini-run`
+<summary>
+Even better, you can use a virtual environment.
+</summary>
+
+```sh
+pip install --user virtualenv
+virtualenv --python python<x.y> $PWD/venv
+source venv/activate
+pip install .
+```
+
+with `<x.y>` the version of Python.
+By instance, `python3.12`.
+Note you have to source the activation script if you are in a new terminal.
+
+</details>
+
+## `mini-run` command
 
 The command `mini-run` is used to build miniPIC for a selection of setups, to execute it and to validate its results.
 For validation, `mini-run` calls the same functions as `mini-validate` internally.
@@ -21,7 +59,7 @@ You can get some help with:
 mini-run -h
 ```
 
-### Available options:
+### Available options
 
 Here is a list of the available options:
 
@@ -78,7 +116,7 @@ python tests/run.py -g gpu
 python tests/run.py -c clang++
 ```
 
-## `mini-validate`
+## `mini-validate` command
 
 A validation mechanism can be used to validate the code outputs after it ran.
 Output files are checked against reference values.
@@ -89,13 +127,14 @@ You can access the help page by doing:
 mini-validate -h
 ```
 
-### Available options:
+### Available options
 
 Here is a list of the available options:
 
 | Option | Long Option | Description |
 | --- | --- | --- |
-| `setup` | | Name of the setup |
+| `-s` | `--setup` | Name of the setup (autodetected by default) |
+| `-p` | `--path` | Path of the execution directory (default to curent directory) |
 | | `--threshold THRESHOLD` | Threshold for the validation |
 
 ### Setups
@@ -111,3 +150,23 @@ The possible setups are:
 For a given benchmark, the output results can be analyzed to validate the run.
 This only happens if a script of the same name is present in the directory `validate` on the root of the repository.
 For instance, `default.py` being implemented in `validate`, the run of `default.hpp` will be analyzed at the end of the simulation.
+
+## Scripts directory
+
+The `scripts` directory contains programs for plotting, printing, and verifying simulation outputs.
+The complete list is:
+
+- `plot_energy_balance.py`;
+- `plot_field.py`;
+- `plot_particle_binning.py`;
+- `plot_particle_cloud.py`;
+- `print_all_fields.py`;
+- `print_momentum_intime.py`;
+- `print_particle_intime.py`;
+- `print_particles.py`;
+- `verif_Bfield_cst.py`;
+- `verif_EB_cst.py`;
+- `verif_Efield_cst.py`;
+- `verif_kinetic_energy.py`.
+
+Please refer to each script for its use.
