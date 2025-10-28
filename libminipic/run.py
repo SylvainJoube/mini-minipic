@@ -11,7 +11,7 @@ import subprocess
 import sys
 import time
 
-from libminipic.ci import step
+from libminipic.ci import print_step
 from libminipic.validate import validate_setup
 
 # ________________________________________________________________________________
@@ -324,7 +324,7 @@ def run():
     unique_id = time.strftime("%Y%m%d_%H:%M:%S") + "_" + pipeline_id + "_" + git_hash
 
     # Print some info
-    step("Summary", level=0)
+    print_step("Summary", level=0)
 
     print(" Git branch: {}".format(git_branch))
     print(" Git hash: {}".format(git_hash))
@@ -370,7 +370,7 @@ def run():
 
         bench_dir = os.path.join(build_dir, setup)
 
-        step(f"Setup {setup}", level=0)
+        print_step(f"Setup {setup}", level=0)
 
         # ____________________________________________________________________________
         # Compilation
@@ -392,7 +392,7 @@ def run():
 
         cmake_command.extend(cmake)
 
-        step("Compilation")
+        print_step("Compilation")
 
         print(" ".join(cmake_command))
 
@@ -415,7 +415,7 @@ def run():
             current_env = {}
             current_env.update(env)
 
-            step("Execution")
+            print_step("Execution")
 
             run_command = [
                 "./{}".format(executable_name),
@@ -437,7 +437,7 @@ def run():
             # ____________________________________________________________________________
             # Check results
 
-            step("Validation")
+            print_step("Validation")
 
             validate_setup(bench_dir, setup, threshold)
 
@@ -446,7 +446,7 @@ def run():
 
             if save_timers:
 
-                step("Timers")
+                print_step("Timers")
 
                 with open(os.path.join(bench_dir, "timers.json")) as f:
                     raw_timers_dict = json.load(f)
@@ -498,6 +498,6 @@ def run():
 
         if clean and os.path.exists(bench_dir):
 
-            step("Cleanup")
+            print_step("Cleanup")
 
             shutil.rmtree(bench_dir, ignore_errors=True)

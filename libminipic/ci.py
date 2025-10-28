@@ -16,17 +16,17 @@ TERMINAL_WIDTH = shutil.get_terminal_size().columns
 SEPARATOR_LEVELS = ["=", "-", "."]
 
 
-def success(message):
+def print_success(message):
     """Print a success message."""
     cprint(message, "green", attrs=["bold"])
 
 
-def failure(message):
+def print_failure(message):
     """Print a failure message."""
     cprint(message, "red", attrs=["bold"])
 
 
-def step(message, level=1):
+def print_step(message, level=1):
     """Print a step message with a line."""
     sep = SEPARATOR_LEVELS[level]
     cprint(

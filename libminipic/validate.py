@@ -7,7 +7,7 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from libminipic.ci import success
+from libminipic.ci import print_success
 from libminipic.exceptions import IncorrectFileMiniPICError, MissingFileMiniPICError
 
 CMAKE_CACHE_FILENAME = "CMakeCache.txt"
@@ -42,7 +42,7 @@ def validate_setup(path, setup=None, threshold=1e-10):
 
     module.validate(threshold)
 
-    success(f"Setup {setup} tested with success")
+    print_success(f"Setup {setup} tested with success")
 
     # force flush to see text on time
     # especially useful on HPC

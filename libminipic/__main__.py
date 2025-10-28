@@ -2,7 +2,7 @@
 
 import sys
 
-from libminipic.ci import failure
+from libminipic.ci import print_failure
 from libminipic.exceptions import MiniPICError
 from libminipic.run import run
 from libminipic.validate import validate
@@ -16,15 +16,15 @@ def execute(function):
         return 0
 
     except KeyboardInterrupt:
-        failure("Interrumpted by user")
+        print_failure("Interrumpted by user")
         return 128
 
     except MiniPICError as exception:
-        failure(exception)
+        print_failure(exception)
         return 2
 
     except:
-        failure("Unexpected error")
+        print_failure("Unexpected error")
         raise
 
 
