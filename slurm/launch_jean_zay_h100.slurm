@@ -15,14 +15,17 @@ set -e
 # Modules
 
 module purge
-module load arch/h100
-module load nvidia-compilers/24.7
-module load cmake/3.31.4
-module load python
+module load "arch/h100"
+module load "nvidia-compilers/24.7"
+module load "cmake/3.31.4"
+module load "python/3.12.2"
 
 # Python env
 
-source ./venv/bin/activate
+if [[ -d ./venv ]]
+then
+    source ./venv/bin/activate
+fi
 
 # Launch the test
 

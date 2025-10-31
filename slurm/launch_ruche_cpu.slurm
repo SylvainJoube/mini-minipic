@@ -19,7 +19,10 @@ module load "python-nospack/3.12.4/gcc-11.2.0"
 
 # Python env
 
-source ./venv/bin/activate
+if [[ -d ./venv ]]
+then
+    source ./venv/bin/activate
+fi
 
 # Launch the test
 

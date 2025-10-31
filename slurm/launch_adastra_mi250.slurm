@@ -15,16 +15,20 @@ set -e
 # Modules
 
 module purge
-module load cpe/24.07
-module load craype-accel-amd-gfx90a craype-x86-genoa
-module load PrgEnv-cray
-module load amd-mixed
-module load cmake
-module load python
+module load "cpe/24.07"
+module load "craype-accel-amd-gfx90a"
+module load "craype-x86-genoa"
+module load "PrgEnv-cray"
+module load "amd-mixed"
+module load "cmake/3.27.9"
+module load "cray-python/3.11.7"
 
 # Python env
 
-source ./venv/bin/activate
+if [[ -d ./venv ]]
+then
+    source ./venv/bin/activate
+fi
 
 # Launch the test
 
