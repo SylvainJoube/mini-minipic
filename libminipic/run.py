@@ -426,7 +426,7 @@ def run():
                 *args,
             ]  # srun numactl --interleave=all
             if prefix:
-                run_command = [*(prefix.split()), *run_command]
+                run_command = [*prefix, *run_command]
 
             print_command(run_command, env=current_env)
 
