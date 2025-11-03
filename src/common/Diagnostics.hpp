@@ -260,24 +260,24 @@ void particle_binning(std::string& diag_name,
 
           if (axis_code[idim] == 0) {
             value = sqrt(1 +
-                         particles.mx_h_(ip) *
-                           particles.mx_h_(ip) +
-                         particles.my_h_(ip) *
-                           particles.my_h_(ip) +
-                         particles.mz_h_(ip) *
-                           particles.mz_h_(ip));
+                         particles.mx_h_m(ip) *
+                           particles.mx_h_m(ip) +
+                         particles.my_h_m(ip) *
+                           particles.my_h_m(ip) +
+                         particles.mz_h_m(ip) *
+                           particles.mz_h_m(ip));
           } else if (axis_code[idim] == 1) {
-            value = particles.x_h_(ip);
+            value = particles.x_h_m(ip);
           } else if (axis_code[idim] == 2) {
-            value = particles.y_h_(ip);
+            value = particles.y_h_m(ip);
           } else if (axis_code[idim] == 3) {
-            value = particles.z_h_(ip);
+            value = particles.z_h_m(ip);
           } else if (axis_code[idim] == 4) {
-            value = particles.mx_h_(ip);
+            value = particles.mx_h_m(ip);
           } else if (axis_code[idim] == 5) {
-            value = particles.my_h_(ip);
+            value = particles.my_h_m(ip);
           } else if (axis_code[idim] == 6) {
-            value = particles.mz_h_(ip);
+            value = particles.mz_h_m(ip);
           }
 
           min_value[idim] = std::min(min_value[idim], static_cast<double>(value));
@@ -314,21 +314,21 @@ void particle_binning(std::string& diag_name,
         if (axis_code[idim] == 0) {
           value[idim] = sqrt(
             1 +
-            particles.mx_h_(ip) * particles.mx_h_(ip) +
-            particles.my_h_(ip) * particles.my_h_(ip) +
-            particles.mz_h_(ip) * particles.mz_h_(ip));
+            particles.mx_h_m(ip) * particles.mx_h_m(ip) +
+            particles.my_h_m(ip) * particles.my_h_m(ip) +
+            particles.mz_h_m(ip) * particles.mz_h_m(ip));
         } else if (axis_code[idim] == 1) {
-          value[idim] = particles.x_h_(ip);
+          value[idim] = particles.x_h_m(ip);
         } else if (axis_code[idim] == 2) {
-          value[idim] = particles.y_h_(ip);
+          value[idim] = particles.y_h_m(ip);
         } else if (axis_code[idim] == 3) {
-          value[idim] = particles.z_h_(ip);
+          value[idim] = particles.z_h_m(ip);
         } else if (axis_code[idim] == 4) {
-          value[idim] = particles.mx_h_(ip);
+          value[idim] = particles.mx_h_m(ip);
         } else if (axis_code[idim] == 5) {
-          value[idim] = particles.my_h_(ip);
+          value[idim] = particles.my_h_m(ip);
         } else if (axis_code[idim] == 6) {
-          value[idim] = particles.mz_h_(ip);
+          value[idim] = particles.mz_h_m(ip);
         }
 
         if (value[idim] < min_value[idim] || value[idim] >= max_value[idim]) {
@@ -354,10 +354,10 @@ void particle_binning(std::string& diag_name,
         }
 
         if (data_code == 0) {
-          diag_data[global_index] += static_cast<double>(particles.weight_h_(ip));
+          diag_data[global_index] += static_cast<double>(particles.weight_h_m(ip));
         } else if (data_code == 1) {
           diag_data[global_index] +=
-            static_cast<double>(particles.weight_h_(ip) * params.inv_cell_volume);
+            static_cast<double>(particles.weight_h_m(ip) * params.inv_cell_volume);
         } else if (data_code == 2) {
           diag_data[global_index] += 1;
         }
@@ -542,15 +542,15 @@ void particle_cloud(const std::string& diag_name,
       const unsigned int n_particles = particles.size();
       for (unsigned int ip = 0; ip < n_particles; ++ip) {
 
-        binary_file.write((char *)(&particles.weight_h_(ip)), sizeof(double));
+        binary_file.write((char *)(&particles.weight_h_m(ip)), sizeof(double));
 
-        binary_file.write((char *)(&particles.x_h_(ip)), sizeof(double));
-        binary_file.write((char *)(&particles.y_h_(ip)), sizeof(double));
-        binary_file.write((char *)(&particles.z_h_(ip)), sizeof(double));
+        binary_file.write((char *)(&particles.x_h_m(ip)), sizeof(double));
+        binary_file.write((char *)(&particles.y_h_m(ip)), sizeof(double));
+        binary_file.write((char *)(&particles.z_h_m(ip)), sizeof(double));
 
-        binary_file.write((char *)(&particles.mx_h_(ip)), sizeof(double));
-        binary_file.write((char *)(&particles.my_h_(ip)), sizeof(double));
-        binary_file.write((char *)(&particles.mz_h_(ip)), sizeof(double));
+        binary_file.write((char *)(&particles.mx_h_m(ip)), sizeof(double));
+        binary_file.write((char *)(&particles.my_h_m(ip)), sizeof(double));
+        binary_file.write((char *)(&particles.mz_h_m(ip)), sizeof(double));
 
       } // End particle loop
 
@@ -585,9 +585,9 @@ void particle_cloud(const std::string& diag_name,
       const unsigned int n_particles = particles.size();
       for (unsigned int ip = 0; ip < n_particles; ++ip) {
 
-        vtk_file << particles.z_h_(ip) << " "
-                 << particles.y_h_(ip) << " "
-                 << particles.x_h_(ip) << std::endl;
+        vtk_file << particles.z_h_m(ip) << " "
+                 << particles.y_h_m(ip) << " "
+                 << particles.x_h_m(ip) << std::endl;
 
       } // End particle loop
 
@@ -599,7 +599,7 @@ void particle_cloud(const std::string& diag_name,
 
       for (unsigned int ip = 0; ip < particles.size(); ++ip) {
 
-        vtk_file << particles.weight_h_(ip) << " ";
+        vtk_file << particles.weight_h_m(ip) << " ";
 
       } // End particle loop
 
@@ -617,9 +617,9 @@ void particle_cloud(const std::string& diag_name,
           1 /
           sqrt(
             1. +
-            particles.mx_h_(ip) * particles.mx_h_(ip) +
-            particles.my_h_(ip) * particles.my_h_(ip) +
-            particles.mz_h_(ip) * particles.mz_h_(ip));
+            particles.mx_h_m(ip) * particles.mx_h_m(ip) +
+            particles.my_h_m(ip) * particles.my_h_m(ip) +
+            particles.mz_h_m(ip) * particles.mz_h_m(ip));
 
         vtk_file << gamma << " ";
       }
@@ -630,9 +630,9 @@ void particle_cloud(const std::string& diag_name,
     vtk_file << std::endl;
     vtk_file << "VECTORS momentum float" << std::endl;
       for (unsigned int ip = 0; ip < particles.size(); ++ip) {
-        vtk_file << particles.mx_h_(ip) << " ";
-        vtk_file << particles.my_h_(ip) << " ";
-        vtk_file << particles.mz_h_(ip) << " ";
+        vtk_file << particles.mx_h_m(ip) << " ";
+        vtk_file << particles.my_h_m(ip) << " ";
+        vtk_file << particles.mz_h_m(ip) << " ";
       }
 
     vtk_file.close();

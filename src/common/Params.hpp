@@ -26,23 +26,23 @@
 // ___________________________________________________________________
 struct ParticleBinningProperties {
   //! Name of the diagnostic (used for output)
-  std::string name_;
+  std::string name_m;
   //! Name of the parameter to project
-  std::string projected_parameter_;
+  std::string projected_parameter_m;
   //! vector of axis names
-  std::vector<std::string> axis_;
+  std::vector<std::string> axis_m;
   //! Number of cells for each axis
-  std::vector<std::size_t> n_cells_;
+  std::vector<std::size_t> n_cells_m;
   //! min values for each axis
-  std::vector<double> min_;
+  std::vector<double> min_m;
   //! max values for each axis
-  std::vector<double> max_;
+  std::vector<double> max_m;
   //! Species number
-  std::vector<int> species_indexes_;
+  std::vector<int> species_indexes_m;
   //! Output period
-  int period_;
+  int period_m;
   //! format of the output file
-  std::string format_;
+  std::string format_m;
 
   //! Constructor
   ParticleBinningProperties(const std::string& name,
@@ -54,8 +54,8 @@ struct ParticleBinningProperties {
                             const std::vector<int>& species_indexes,
                             int period,
                             const std::string& format)
-    : name_(name), projected_parameter_(projected_parameter), axis_(axis), n_cells_(n_cells),
-      min_(min), max_(max), species_indexes_(species_indexes), period_(period), format_(format) {};
+    : name_m(name), projected_parameter_m(projected_parameter), axis_m(axis), n_cells_m(n_cells),
+      min_m(min), max_m(max), species_indexes_m(species_indexes), period_m(period), format_m(format) {};
 };
 
 // ___________________________________________________________________
@@ -64,18 +64,18 @@ struct ParticleBinningProperties {
 // ___________________________________________________________________
 struct Particle {
 
-  unsigned int is_;
-  double weight_;
-  double x_;
-  double y_;
-  double z_;
-  double mx_;
-  double my_;
-  double mz_;
+  unsigned int is_m;
+  double weight_m;
+  double x_m;
+  double y_m;
+  double z_m;
+  double mx_m;
+  double my_m;
+  double mz_m;
 
   //! Constructor
   Particle(unsigned int is, double w, double x, double y, double z, double mx, double my, double mz)
-    : is_(is), weight_(w), x_(x), y_(y), z_(z), mx_(mx), my_(my), mz_(mz) {};
+    : is_m(is), weight_m(w), x_m(x), y_m(y), z_m(z), mx_m(mx), my_m(my), mz_m(mz) {};
 };
 
 // ___________________________________________________________________
@@ -133,20 +133,20 @@ public:
   // Species parameters
 
   //! Name of the species
-  std::vector<std::string> species_names_;
+  std::vector<std::string> species_names_m;
   //! Particle per cell for each species at init
-  std::vector<std::size_t> ppc_;
+  std::vector<std::size_t> ppc_m;
   //! Normalized density, temperature, mass, charge for each species at init
-  std::vector<double> temp_, mass_, charge_;
+  std::vector<double> temp_m, mass_m, charge_m;
   //! Density profile for each species at init
   //! Lambda of 3 doubles: x, y, z that representes a normalized position (between 0 and 1)
-  std::vector<std::function<double(double, double, double)>> density_profiles_;
+  std::vector<std::function<double(double, double, double)>> density_profiles_m;
   //! Mean velocity for each species at init (vector of 3 doubles)
-  std::vector<std::vector<double>> drift_velocity_;
+  std::vector<std::vector<double>> drift_velocity_m;
   //! Method to use for position init
-  std::vector<std::string> position_initialization_method_;
+  std::vector<std::string> position_initialization_method_m;
   //! Position init level (patch or cell)
-  std::vector<std::string> position_initialization_level_;
+  std::vector<std::string> position_initialization_level_m;
 
   //! Number of particles total for each species at init, computed
   std::vector<std::size_t> n_particles_by_species;
@@ -154,21 +154,21 @@ public:
   int n_particles;
 
   //! list of particles to add at init
-  std::vector<Particle> particles_to_add_;
+  std::vector<Particle> particles_to_add_m;
 
   // ____________________________________________________________
   // Antenna parameters
 
   //! Antenna profile (x, y, t)
-  std::vector<std::function<double(double, double, double)>> antenna_profiles_;
+  std::vector<std::function<double(double, double, double)>> antenna_profiles_m;
   //! Antenna position
-  std::vector<double> antenna_positions_;
+  std::vector<double> antenna_positions_m;
 
   // ____________________________________________________________
   // Imbalance parameters
 
   //! imbalance profile (x, y, z)
-  std::vector<std::function<double(double, double, double, double)>> imbalance_function_;
+  std::vector<std::function<double(double, double, double, double)>> imbalance_function_m;
 
   //! Random number
   int seed = 0;
@@ -176,8 +176,8 @@ public:
   // ____________________________________________________________
   // Initial Electric and magnetic field values
 
-  double E0_[3] = {0, 0, 0};
-  double B0_[3] = {0, 0, 0};
+  double E0_m[3] = {0, 0, 0};
+  double B0_m[3] = {0, 0, 0};
 
   // ____________________________________________________________
   // Operators
@@ -194,7 +194,7 @@ public:
   // ____________________________________________________________
   // Parallelism
 
-  bool on_gpu_ = false;
+  bool on_gpu_m = false;
 
   // ____________________________________________________________
   // Diagnostics parameters
@@ -206,7 +206,7 @@ public:
   std::string output_directory = "diags";
 
   //! vector of ParticleBinningProperties
-  std::vector<ParticleBinningProperties> particle_binning_properties_;
+  std::vector<ParticleBinningProperties> particle_binning_properties_m;
 
   //! Period of the particle cloud diagnostic
   unsigned int particle_cloud_period = 0;
@@ -313,18 +313,18 @@ public:
 
     // Physics
     n_particles = 0;
-    n_particles_by_species.resize(species_names_.size());
-    for (size_t is = 0; is < species_names_.size(); is++) {
-      n_particles_by_species[is] =nx_cells * ny_cells * nz_cells * ppc_[is];
+    n_particles_by_species.resize(species_names_m.size());
+    for (size_t is = 0; is < species_names_m.size(); is++) {
+      n_particles_by_species[is] =nx_cells * ny_cells * nz_cells * ppc_m[is];
       n_particles += n_particles_by_species[is];
     }
 
     // Check species initialization
-    for (size_t is = 0; is < species_names_.size(); ++is) {
+    for (size_t is = 0; is < species_names_m.size(); ++is) {
 
       bool passed = false;
 
-      if (position_initialization_method_[is] == "random") {
+      if (position_initialization_method_m[is] == "random") {
 
         passed = true;
 
@@ -332,24 +332,24 @@ public:
 
         // We check that the position init is one of the previous species
         for (size_t is2 = 0; is2 < is; ++is2) {
-          if (position_initialization_method_[is] == species_names_[is2]) {
+          if (position_initialization_method_m[is] == species_names_m[is2]) {
             passed = true;
           }
         }
       }
       // if not passed, return an error
       if (!passed) {
-        ERROR(" Position initialization " << position_initialization_method_[is]
+        ERROR(" Position initialization " << position_initialization_method_m[is]
                                           << " is not supported");
         std::raise(SIGABRT);
       }
     }
 
     // Check species init level (should be "cell" or "patch")
-    for (size_t is = 0; is < species_names_.size(); ++is) {
-      if (position_initialization_level_[is] != "cell" &&
-          position_initialization_level_[is] != "patch") {
-        ERROR(" Position initialization level " << position_initialization_level_[is]
+    for (size_t is = 0; is < species_names_m.size(); ++is) {
+      if (position_initialization_level_m[is] != "cell" &&
+          position_initialization_level_m[is] != "patch") {
+        ERROR(" Position initialization level " << position_initialization_level_m[is]
                                                 << " is not supported");
         std::raise(SIGABRT);
       }
@@ -497,13 +497,13 @@ public:
   //
   //! \brief return the number of species
   // _____________________________________________________
-  inline auto get_species_number() const { return species_names_.size(); }
+  inline auto get_species_number() const { return species_names_m.size(); }
 
   // _____________________________________________________
   //
   //! \brief return the number of particle binning objects
   // _____________________________________________________
-  inline auto get_particle_binning_number() const { return particle_binning_properties_.size(); }
+  inline auto get_particle_binning_number() const { return particle_binning_properties_m.size(); }
 
   // _____________________________________________________
   //

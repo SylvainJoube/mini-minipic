@@ -47,47 +47,47 @@ public:
   using hostview_t = typename view_t::host_mirror_type;
 
   //! Particles positions in 3D
-  view_t x_;
-  hostview_t x_h_;
-  view_t y_;
-  hostview_t y_h_;
-  view_t z_;
-  hostview_t z_h_;
+  view_t x_m;
+  hostview_t x_h_m;
+  view_t y_m;
+  hostview_t y_h_m;
+  view_t z_m;
+  hostview_t z_h_m;
   //! Particles momentums in 3D
-  view_t mx_;
-  hostview_t mx_h_;
-  view_t my_;
-  hostview_t my_h_;
-  view_t mz_;
-  hostview_t mz_h_;
+  view_t mx_m;
+  hostview_t mx_h_m;
+  view_t my_m;
+  hostview_t my_h_m;
+  view_t mz_m;
+  hostview_t mz_h_m;
 
   //! Weights | Charge density (scalar)
   //! w0,w1,w2,...
-  view_t weight_;
-  hostview_t weight_h_;
+  view_t weight_m;
+  hostview_t weight_h_m;
 
   //! Electric field interpolate
-  view_t Ex_;
-  hostview_t Ex_h_;
-  view_t Ey_;
-  hostview_t Ey_h_;
-  view_t Ez_;
-  hostview_t Ez_h_;
+  view_t Ex_m;
+  hostview_t Ex_h_m;
+  view_t Ey_m;
+  hostview_t Ey_h_m;
+  view_t Ez_m;
+  hostview_t Ez_h_m;
   //! Magnetic field interpolate
-  view_t Bx_;
-  hostview_t Bx_h_;
-  view_t By_;
-  hostview_t By_h_;
-  view_t Bz_;
-  hostview_t Bz_h_;
+  view_t Bx_m;
+  hostview_t Bx_h_m;
+  view_t By_m;
+  hostview_t By_h_m;
+  view_t Bz_m;
+  hostview_t Bz_h_m;
 
   //! This flag when false prevents the allocation of E and B fields
-  bool with_electromagnetic_fields_ = true;
+  bool with_electromagnetic_fields_m = true;
 
   //! \brief Gamma accessor using the momentum
   //! \param[in] ip particle index
   INLINE double gamma(unsigned int ip) {
-    return sqrt(1 + mx_h_(ip) * mx_h_(ip) + my_h_(ip) * my_h_(ip) + mz_h_(ip) * mz_h_(ip));
+    return sqrt(1 + mx_h_m(ip) * mx_h_m(ip) + my_h_m(ip) * my_h_m(ip) + mz_h_m(ip) * mz_h_m(ip));
   }
 
   // __________________________________________________________________________
@@ -104,38 +104,38 @@ public:
     mass_m        = m;
     temperature_m = t;
 
-    x_ = view_t("x", n_particles);
-    x_h_ = Kokkos::create_mirror_view(x_);
-    y_ = view_t("y", n_particles);
-    y_h_ = Kokkos::create_mirror_view(y_);
-    z_ = view_t("z", n_particles);
-    z_h_ = Kokkos::create_mirror_view(z_);
+    x_m = view_t("x", n_particles);
+    x_h_m = Kokkos::create_mirror_view(x_m);
+    y_m = view_t("y", n_particles);
+    y_h_m = Kokkos::create_mirror_view(y_m);
+    z_m = view_t("z", n_particles);
+    z_h_m = Kokkos::create_mirror_view(z_m);
 
-    mx_ = view_t("mx", n_particles);
-    mx_h_ = Kokkos::create_mirror_view(mx_);
-    my_ = view_t("my", n_particles);
-    my_h_ = Kokkos::create_mirror_view(my_);
-    mz_ = view_t("mz", n_particles);
-    mz_h_ = Kokkos::create_mirror_view(mz_);
+    mx_m = view_t("mx", n_particles);
+    mx_h_m = Kokkos::create_mirror_view(mx_m);
+    my_m = view_t("my", n_particles);
+    my_h_m = Kokkos::create_mirror_view(my_m);
+    mz_m = view_t("mz", n_particles);
+    mz_h_m = Kokkos::create_mirror_view(mz_m);
 
-    weight_ = view_t("weight", n_particles);
-    weight_h_ = Kokkos::create_mirror_view(weight_);
+    weight_m = view_t("weight", n_particles);
+    weight_h_m = Kokkos::create_mirror_view(weight_m);
 
-    // gamma_inv_.allocate("gamma_inv", n_particles);
+    // gamma_inv_m.allocate("gamma_inv", n_particles);
 
-    Ex_ = view_t("Ex", n_particles);
-    Ex_h_ = Kokkos::create_mirror_view(Ex_);
-    Ey_ = view_t("Ey", n_particles);
-    Ey_h_ = Kokkos::create_mirror_view(Ey_);
-    Ez_ = view_t("Ez", n_particles);
-    Ez_h_ = Kokkos::create_mirror_view(Ez_);
+    Ex_m = view_t("Ex", n_particles);
+    Ex_h_m = Kokkos::create_mirror_view(Ex_m);
+    Ey_m = view_t("Ey", n_particles);
+    Ey_h_m = Kokkos::create_mirror_view(Ey_m);
+    Ez_m = view_t("Ez", n_particles);
+    Ez_h_m = Kokkos::create_mirror_view(Ez_m);
 
-    Bx_ = view_t("Bx", n_particles);
-    Bx_h_ = Kokkos::create_mirror_view(Bx_);
-    By_ = view_t("By", n_particles);
-    By_h_ = Kokkos::create_mirror_view(By_);
-    Bz_ = view_t("Bz", n_particles);
-    Bz_h_ = Kokkos::create_mirror_view(Bz_);
+    Bx_m = view_t("Bx", n_particles);
+    Bx_h_m = Kokkos::create_mirror_view(Bx_m);
+    By_m = view_t("By", n_particles);
+    By_h_m = Kokkos::create_mirror_view(By_m);
+    Bz_m = view_t("Bz", n_particles);
+    Bz_h_m = Kokkos::create_mirror_view(Bz_m);
   }
 
   // __________________________________________________________________________
@@ -149,37 +149,37 @@ public:
   //! \brief Delete all particles properties, keep species properties
   // __________________________________________________________________________
   void clear() {
-    Kokkos::resize(x_, 0);
-    Kokkos::resize(x_h_, 0);
-    Kokkos::resize(y_, 0);
-    Kokkos::resize(y_h_, 0);
-    Kokkos::resize(z_, 0);
-    Kokkos::resize(z_h_, 0);
+    Kokkos::resize(x_m, 0);
+    Kokkos::resize(x_h_m, 0);
+    Kokkos::resize(y_m, 0);
+    Kokkos::resize(y_h_m, 0);
+    Kokkos::resize(z_m, 0);
+    Kokkos::resize(z_h_m, 0);
 
-    Kokkos::resize(mx_, 0);
-    Kokkos::resize(mx_h_, 0);
-    Kokkos::resize(my_, 0);
-    Kokkos::resize(my_h_, 0);
-    Kokkos::resize(mz_, 0);
-    Kokkos::resize(mz_h_, 0);
+    Kokkos::resize(mx_m, 0);
+    Kokkos::resize(mx_h_m, 0);
+    Kokkos::resize(my_m, 0);
+    Kokkos::resize(my_h_m, 0);
+    Kokkos::resize(mz_m, 0);
+    Kokkos::resize(mz_h_m, 0);
 
-    Kokkos::resize(weight_, 0);
-    Kokkos::resize(weight_h_, 0);
+    Kokkos::resize(weight_m, 0);
+    Kokkos::resize(weight_h_m, 0);
 
-    if (with_electromagnetic_fields_) {
-      Kokkos::resize(Ex_, 0);
-      Kokkos::resize(Ex_h_, 0);
-      Kokkos::resize(Ey_, 0);
-      Kokkos::resize(Ey_h_, 0);
-      Kokkos::resize(Ez_, 0);
-      Kokkos::resize(Ez_h_, 0);
+    if (with_electromagnetic_fields_m) {
+      Kokkos::resize(Ex_m, 0);
+      Kokkos::resize(Ex_h_m, 0);
+      Kokkos::resize(Ey_m, 0);
+      Kokkos::resize(Ey_h_m, 0);
+      Kokkos::resize(Ez_m, 0);
+      Kokkos::resize(Ez_h_m, 0);
 
-      Kokkos::resize(Bx_, 0);
-      Kokkos::resize(Bx_h_, 0);
-      Kokkos::resize(By_, 0);
-      Kokkos::resize(By_h_, 0);
-      Kokkos::resize(Bz_, 0);
-      Kokkos::resize(Bz_h_, 0);
+      Kokkos::resize(Bx_m, 0);
+      Kokkos::resize(Bx_h_m, 0);
+      Kokkos::resize(By_m, 0);
+      Kokkos::resize(By_h_m, 0);
+      Kokkos::resize(Bz_m, 0);
+      Kokkos::resize(Bz_h_m, 0);
     }
 
     n_particles_m = 0;
@@ -200,62 +200,62 @@ public:
 
     if (n_particles > n_particles_m || (n_particles_m - n_particles) > min_threshold) {
 
-      Kokkos::resize(x_, n_particles);
-      Kokkos::deep_copy(x_, 0.);
-      Kokkos::resize(x_h_, n_particles);
-      Kokkos::deep_copy(x_h_, 0.);
-      Kokkos::resize(y_, n_particles);
-      Kokkos::deep_copy(y_, 0.);
-      Kokkos::resize(y_h_, n_particles);
-      Kokkos::deep_copy(y_h_, 0.);
-      Kokkos::resize(z_, n_particles);
-      Kokkos::deep_copy(z_, 0.);
-      Kokkos::resize(z_h_, n_particles);
-      Kokkos::deep_copy(z_h_, 0.);
+      Kokkos::resize(x_m, n_particles);
+      Kokkos::deep_copy(x_m, 0.);
+      Kokkos::resize(x_h_m, n_particles);
+      Kokkos::deep_copy(x_h_m, 0.);
+      Kokkos::resize(y_m, n_particles);
+      Kokkos::deep_copy(y_m, 0.);
+      Kokkos::resize(y_h_m, n_particles);
+      Kokkos::deep_copy(y_h_m, 0.);
+      Kokkos::resize(z_m, n_particles);
+      Kokkos::deep_copy(z_m, 0.);
+      Kokkos::resize(z_h_m, n_particles);
+      Kokkos::deep_copy(z_h_m, 0.);
 
-      Kokkos::resize(mx_, n_particles);
-      Kokkos::deep_copy(mx_, 0.);
-      Kokkos::resize(mx_h_, n_particles);
-      Kokkos::deep_copy(mx_h_, 0.);
-      Kokkos::resize(my_, n_particles);
-      Kokkos::deep_copy(my_, 0.);
-      Kokkos::resize(my_h_, n_particles);
-      Kokkos::deep_copy(my_h_, 0.);
-      Kokkos::resize(mz_, n_particles);
-      Kokkos::deep_copy(mz_, 0.);
-      Kokkos::resize(mz_h_, n_particles);
-      Kokkos::deep_copy(mz_h_, 0.);
+      Kokkos::resize(mx_m, n_particles);
+      Kokkos::deep_copy(mx_m, 0.);
+      Kokkos::resize(mx_h_m, n_particles);
+      Kokkos::deep_copy(mx_h_m, 0.);
+      Kokkos::resize(my_m, n_particles);
+      Kokkos::deep_copy(my_m, 0.);
+      Kokkos::resize(my_h_m, n_particles);
+      Kokkos::deep_copy(my_h_m, 0.);
+      Kokkos::resize(mz_m, n_particles);
+      Kokkos::deep_copy(mz_m, 0.);
+      Kokkos::resize(mz_h_m, n_particles);
+      Kokkos::deep_copy(mz_h_m, 0.);
 
-      if (with_electromagnetic_fields_) {
-        Kokkos::resize(Ex_, n_particles);
-        Kokkos::deep_copy(Ex_, 0.);
-        Kokkos::resize(Ex_h_, n_particles);
-        Kokkos::deep_copy(Ex_h_, 0.);
-        Kokkos::resize(Ey_, n_particles);
-        Kokkos::deep_copy(Ey_, 0.);
-        Kokkos::resize(Ey_h_, n_particles);
-        Kokkos::deep_copy(Ey_h_, 0.);
-        Kokkos::resize(Ez_, n_particles);
-        Kokkos::deep_copy(Ez_, 0.);
-        Kokkos::resize(Ez_h_, n_particles);
-        Kokkos::deep_copy(Ez_h_, 0.);
+      if (with_electromagnetic_fields_m) {
+        Kokkos::resize(Ex_m, n_particles);
+        Kokkos::deep_copy(Ex_m, 0.);
+        Kokkos::resize(Ex_h_m, n_particles);
+        Kokkos::deep_copy(Ex_h_m, 0.);
+        Kokkos::resize(Ey_m, n_particles);
+        Kokkos::deep_copy(Ey_m, 0.);
+        Kokkos::resize(Ey_h_m, n_particles);
+        Kokkos::deep_copy(Ey_h_m, 0.);
+        Kokkos::resize(Ez_m, n_particles);
+        Kokkos::deep_copy(Ez_m, 0.);
+        Kokkos::resize(Ez_h_m, n_particles);
+        Kokkos::deep_copy(Ez_h_m, 0.);
 
-        Kokkos::resize(Bx_, n_particles);
-        Kokkos::deep_copy(Bx_, 0.);
-        Kokkos::resize(Bx_h_, n_particles);
-        Kokkos::deep_copy(Bx_h_, 0.);
-        Kokkos::resize(By_, n_particles);
-        Kokkos::deep_copy(By_, 0.);
-        Kokkos::resize(By_h_, n_particles);
-        Kokkos::deep_copy(By_h_, 0.);
-        Kokkos::resize(Bz_, n_particles);
-        Kokkos::deep_copy(Bz_, 0.);
-        Kokkos::resize(Bz_h_, n_particles);
-        Kokkos::deep_copy(Bz_h_, 0.);
+        Kokkos::resize(Bx_m, n_particles);
+        Kokkos::deep_copy(Bx_m, 0.);
+        Kokkos::resize(Bx_h_m, n_particles);
+        Kokkos::deep_copy(Bx_h_m, 0.);
+        Kokkos::resize(By_m, n_particles);
+        Kokkos::deep_copy(By_m, 0.);
+        Kokkos::resize(By_h_m, n_particles);
+        Kokkos::deep_copy(By_h_m, 0.);
+        Kokkos::resize(Bz_m, n_particles);
+        Kokkos::deep_copy(Bz_m, 0.);
+        Kokkos::resize(Bz_h_m, n_particles);
+        Kokkos::deep_copy(Bz_h_m, 0.);
       }
 
-      // if (with_gamma_) {
-      //   gamma_inv_.resize(n_particles, 0., space);
+      // if (with_gamma_m) {
+      //   gamma_inv_m.resize(n_particles, 0., space);
       // }
     }
 
@@ -275,26 +275,26 @@ public:
   //! \param[in] mz momentum of the particle to add
   // __________________________________________________________________________
   void set(int i, double w, double x, double y, double z, double mx, double my, double mz) {
-    weight_[i] = w;
+    weight_m[i] = w;
 
-    x_h_[i] = x;
-    y_h_[i] = y;
-    z_h_[i] = z;
+    x_h_m[i] = x;
+    y_h_m[i] = y;
+    z_h_m[i] = z;
 
-    mx_h_[i] = mx;
-    my_h_[i] = my;
-    mz_h_[i] = mz;
+    mx_h_m[i] = mx;
+    my_h_m[i] = my;
+    mz_h_m[i] = mz;
 
-    // gamma_inv_[i] = 1 / sqrt(1 + mx * mx + my * my + mz * mz);
+    // gamma_inv_m[i] = 1 / sqrt(1 + mx * mx + my * my + mz * mz);
 
-    if (with_electromagnetic_fields_) {
-      Ex_h_[i] = 0;
-      Ey_h_[i] = 0;
-      Ez_h_[i] = 0;
+    if (with_electromagnetic_fields_m) {
+      Ex_h_m[i] = 0;
+      Ey_h_m[i] = 0;
+      Ez_h_m[i] = 0;
 
-      Bx_h_[i] = 0;
-      By_h_[i] = 0;
-      Bz_h_[i] = 0;
+      Bx_h_m[i] = 0;
+      By_h_m[i] = 0;
+      Bz_h_m[i] = 0;
     }
 
     sync(minipic::host, minipic::device);
@@ -309,10 +309,10 @@ public:
     double kinetic_energy = 0;
 
     if constexpr (std::is_same<T_space, minipic::Device>::value) {
-      auto w  = weight_;
-      auto mx = mx_;
-      auto my = my_;
-      auto mz = mz_;
+      auto w  = weight_m;
+      auto mx = mx_m;
+      auto my = my_m;
+      auto mz = mz_m;
 
       Kokkos::parallel_reduce(
         "kinetic_energy_on_device",
@@ -348,43 +348,43 @@ public:
     if constexpr (std::is_same<from, minipic::Host>::value &&
                   std::is_same<to, minipic::Device>::value) {
       // Host -> Device
-      Kokkos::deep_copy(x_, x_h_);
-      Kokkos::deep_copy(y_, y_h_);
-      Kokkos::deep_copy(z_, z_h_);
+      Kokkos::deep_copy(x_m, x_h_m);
+      Kokkos::deep_copy(y_m, y_h_m);
+      Kokkos::deep_copy(z_m, z_h_m);
 
-      Kokkos::deep_copy(mx_, mx_h_);
-      Kokkos::deep_copy(my_, my_h_);
-      Kokkos::deep_copy(mz_, mz_h_);
+      Kokkos::deep_copy(mx_m, mx_h_m);
+      Kokkos::deep_copy(my_m, my_h_m);
+      Kokkos::deep_copy(mz_m, mz_h_m);
 
-      Kokkos::deep_copy(weight_, weight_h_);
+      Kokkos::deep_copy(weight_m, weight_h_m);
 
-      Kokkos::deep_copy(Ex_, Ex_h_);
-      Kokkos::deep_copy(Ey_, Ey_h_);
-      Kokkos::deep_copy(Ez_, Ez_h_);
+      Kokkos::deep_copy(Ex_m, Ex_h_m);
+      Kokkos::deep_copy(Ey_m, Ey_h_m);
+      Kokkos::deep_copy(Ez_m, Ez_h_m);
 
-      Kokkos::deep_copy(Bx_, Bx_h_);
-      Kokkos::deep_copy(By_, By_h_);
-      Kokkos::deep_copy(Bz_, Bz_h_);
+      Kokkos::deep_copy(Bx_m, Bx_h_m);
+      Kokkos::deep_copy(By_m, By_h_m);
+      Kokkos::deep_copy(Bz_m, Bz_h_m);
     } else if constexpr (std::is_same<from, minipic::Device>::value &&
                          std::is_same<to, minipic::Host>::value) {
       // Device -> Host
-      Kokkos::deep_copy(x_h_, x_);
-      Kokkos::deep_copy(y_h_, y_);
-      Kokkos::deep_copy(z_h_, z_);
+      Kokkos::deep_copy(x_h_m, x_m);
+      Kokkos::deep_copy(y_h_m, y_m);
+      Kokkos::deep_copy(z_h_m, z_m);
 
-      Kokkos::deep_copy(mx_h_, mx_);
-      Kokkos::deep_copy(my_h_, my_);
-      Kokkos::deep_copy(mz_h_, mz_);
+      Kokkos::deep_copy(mx_h_m, mx_m);
+      Kokkos::deep_copy(my_h_m, my_m);
+      Kokkos::deep_copy(mz_h_m, mz_m);
 
-      Kokkos::deep_copy(weight_h_, weight_);
+      Kokkos::deep_copy(weight_h_m, weight_m);
 
-      Kokkos::deep_copy(Ex_h_, Ex_);
-      Kokkos::deep_copy(Ey_h_, Ey_);
-      Kokkos::deep_copy(Ez_h_, Ez_);
+      Kokkos::deep_copy(Ex_h_m, Ex_m);
+      Kokkos::deep_copy(Ey_h_m, Ey_m);
+      Kokkos::deep_copy(Ez_h_m, Ez_m);
 
-      Kokkos::deep_copy(Bx_h_, Bx_);
-      Kokkos::deep_copy(By_h_, By_);
-      Kokkos::deep_copy(Bz_h_, Bz_);
+      Kokkos::deep_copy(Bx_h_m, Bx_m);
+      Kokkos::deep_copy(By_h_m, By_m);
+      Kokkos::deep_copy(Bz_h_m, Bz_m);
 
     }
   }
@@ -395,8 +395,8 @@ public:
   // __________________________________________________________________________
   void print() {
     for (int ip = 0; ip < n_particles_m; ++ip) {
-      std::cerr << "" << ip << " - " << x_h_(ip) << " " << y_h_(ip) << " " << z_h_(ip)
-                << " mx: " << mx_h_(ip) << " my: " << my_h_(ip) << " mz: " << mz_h_(ip) << std::endl;
+      std::cerr << "" << ip << " - " << x_h_m(ip) << " " << y_h_m(ip) << " " << z_h_m(ip)
+                << " mx: " << mx_h_m(ip) << " my: " << my_h_m(ip) << " mz: " << mz_h_m(ip) << std::endl;
     }
   }
 
@@ -408,13 +408,13 @@ public:
 
     for (int ip = 0; ip < n_particles_m; ++ip) {
 
-      if ((x_h_(ip) <= xmin) || (x_h_(ip) >= xmax) || (y_h_(ip) <= ymin) || (y_h_(ip) >= ymax) ||
-          (z_h_(ip) <= zmin) || (z_h_(ip) >= zmax)) {
+      if ((x_h_m(ip) <= xmin) || (x_h_m(ip) >= xmax) || (y_h_m(ip) <= ymin) || (y_h_m(ip) >= ymax) ||
+          (z_h_m(ip) <= zmin) || (z_h_m(ip) >= zmax)) {
         std::cerr << "Particle: " << ip << "/" << n_particles_m << std::endl;
-        std::cerr << " x: " << x_h_(ip) << " [" << xmin << " " << xmax << "]" << std::endl;
-        std::cerr << " y: " << y_h_(ip) << " [" << ymin << " " << ymax << "]" << std::endl;
-        std::cerr << " z: " << z_h_(ip) << " [" << zmin << " " << zmax << "]" << std::endl;
-        std::cerr << " mx: " << mx_h_(ip) << " my: " << my_h_(ip) << " mz: " << mz_h_(ip) << std::endl;
+        std::cerr << " x: " << x_h_m(ip) << " [" << xmin << " " << xmax << "]" << std::endl;
+        std::cerr << " y: " << y_h_m(ip) << " [" << ymin << " " << ymax << "]" << std::endl;
+        std::cerr << " z: " << z_h_m(ip) << " [" << zmin << " " << zmax << "]" << std::endl;
+        std::cerr << " mx: " << mx_h_m(ip) << " my: " << my_h_m(ip) << " mz: " << mz_h_m(ip) << std::endl;
       }
     }
   }
@@ -445,23 +445,23 @@ public:
 
     for (int ip = 0; ip < n_particles_m; ++ip) {
 
-      x_sum += std::abs(x_h_(ip));
-      y_sum += std::abs(y_h_(ip));
-      z_sum += std::abs(z_h_(ip));
+      x_sum += std::abs(x_h_m(ip));
+      y_sum += std::abs(y_h_m(ip));
+      z_sum += std::abs(z_h_m(ip));
 
-      mx_sum += std::abs(mx_h_(ip));
-      my_sum += std::abs(my_h_(ip));
-      mz_sum += std::abs(mz_h_(ip));
+      mx_sum += std::abs(mx_h_m(ip));
+      my_sum += std::abs(my_h_m(ip));
+      mz_sum += std::abs(mz_h_m(ip));
 
       // gamma_inv_sum += std::abs(gamma_inv_h(ip));
 
-      Ex_sum += std::abs(Ex_h_(ip));
-      Ey_sum += std::abs(Ey_h_(ip));
-      Ez_sum += std::abs(Ez_h_(ip));
+      Ex_sum += std::abs(Ex_h_m(ip));
+      Ey_sum += std::abs(Ey_h_m(ip));
+      Ez_sum += std::abs(Ez_h_m(ip));
 
-      Bx_sum += std::abs(Bx_h_(ip));
-      By_sum += std::abs(By_h_(ip));
-      Bz_sum += std::abs(Bz_h_(ip));
+      Bx_sum += std::abs(Bx_h_m(ip));
+      By_sum += std::abs(By_h_m(ip));
+      Bz_sum += std::abs(Bz_h_m(ip));
     }
 
     std::cerr << std::scientific << std::setprecision(15) << "x sum: " << x_sum
@@ -482,8 +482,8 @@ private:
     double kinetic_energy = 0;
 
     for (size_t ip = 0; ip < size(); ++ip) {
-      const double gamma = sqrt(1. + mx_h_(ip) * mx_h_(ip) + my_h_(ip) * my_h_(ip) + mz_h_(ip) * mz_h_(ip));
-      kinetic_energy += weight_h_(ip) * (gamma - 1.);
+      const double gamma = sqrt(1. + mx_h_m(ip) * mx_h_m(ip) + my_h_m(ip) * my_h_m(ip) + mz_h_m(ip) * mz_h_m(ip));
+      kinetic_energy += weight_h_m(ip) * (gamma - 1.);
     }
 
     return kinetic_energy;

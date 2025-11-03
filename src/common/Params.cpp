@@ -47,7 +47,7 @@ void Params::add_particle_binning(const std::string& diag_name,
 
   // Check that the species indexes exist
   for (size_t i = 0; i < species_indexes.size(); i++) {
-    if (species_indexes[i] >= static_cast<int>(species_names_.size())) {
+    if (species_indexes[i] >= static_cast<int>(species_names_m.size())) {
       ERROR("ERROR in the particle binning creation: The species index "
             << species_indexes[i] << " does not exist" << std::endl);
       std::raise(SIGABRT);
@@ -63,7 +63,7 @@ void Params::add_particle_binning(const std::string& diag_name,
   }
 
   // Add the diag in the list
-  particle_binning_properties_.push_back(ParticleBinningProperties(diag_name,
+  particle_binning_properties_m.push_back(ParticleBinningProperties(diag_name,
                                                                    projected_parameter,
                                                                    axis,
                                                                    n_cells,
@@ -95,7 +95,7 @@ void Params::add_particle(unsigned int is,
                           double my,
                           double mz) {
 
-  particles_to_add_.push_back(Particle(is, w, x, y, z, mx, my, mz));
+  particles_to_add_m.push_back(Particle(is, w, x, y, z, mx, my, mz));
 }
 
 // _________________________________________________________________________________________________
@@ -105,8 +105,8 @@ void Params::add_particle(unsigned int is,
 //! \param x Position of the antenna
 // _________________________________________________________________________________________________
 void Params::add_antenna(std::function<double(double, double, double)> antenna_profile, double x) {
-  antenna_profiles_.push_back(antenna_profile);
-  antenna_positions_.push_back(x);
+  antenna_profiles_m.push_back(antenna_profile);
+  antenna_positions_m.push_back(x);
 }
 
 // _________________________________________________________________________________________________
@@ -114,7 +114,7 @@ void Params::add_antenna(std::function<double(double, double, double)> antenna_p
 //! \param imbalance_profile add the imbalance function
 // _________________________________________________________________________________________________
 void Params::add_imbalance(std::function<double(double, double, double, double)> function_profile) {
-  imbalance_function_.push_back(function_profile);
+  imbalance_function_m.push_back(function_profile);
 }
 
 // _________________________________________________________________________________________________
@@ -148,15 +148,15 @@ void Params::add_species(const std::string& name,
     std::raise(SIGABRT);
   }
 
-  species_names_.push_back(name);
-  ppc_.push_back(ppc);
-  density_profiles_.push_back(density_profile);
-  mass_.push_back(mass);
-  charge_.push_back(charge);
-  temp_.push_back(temp);
-  position_initialization_method_.push_back(position_initiatization_method);
-  position_initialization_level_.push_back(position_initiatization_level);
-  drift_velocity_.push_back(drift_velocity);
+  species_names_m.push_back(name);
+  ppc_m.push_back(ppc);
+  density_profiles_m.push_back(density_profile);
+  mass_m.push_back(mass);
+  charge_m.push_back(charge);
+  temp_m.push_back(temp);
+  position_initialization_method_m.push_back(position_initiatization_method);
+  position_initialization_level_m.push_back(position_initiatization_level);
+  drift_velocity_m.push_back(drift_velocity);
 }
 
 // _____________________________________________________
@@ -168,9 +168,9 @@ void Params::add_species(const std::string& name,
 // _____________________________________________________
 void Params::initialize_electric_field(double Ex, double Ey, double Ez) {
 
-  E0_[0] = Ex;
-  E0_[1] = Ey;
-  E0_[2] = Ez;
+  E0_m[0] = Ex;
+  E0_m[1] = Ey;
+  E0_m[2] = Ez;
 }
 
 // _____________________________________________________
@@ -181,9 +181,9 @@ void Params::initialize_electric_field(double Ex, double Ey, double Ez) {
 //! \param[in] Bz initial value for Bz
 // _____________________________________________________
 void Params::initialize_magnetic_field(double Bx, double By, double Bz) {
-  B0_[0] = Bx;
-  B0_[1] = By;
-  B0_[2] = Bz;
+  B0_m[0] = Bx;
+  B0_m[1] = By;
+  B0_m[2] = Bz;
 }
 
 // ___________________________________________________________
@@ -222,8 +222,8 @@ void Params::read_from_command_line_arguments(int argc, char *argv[]) {
         iarg += 4;
       } else if (key == "-ppc" or key == "--particles_per_cell") {
         const unsigned int ppc = std::stoi(args[iarg + 1]);
-        for (unsigned int i = 0; i < ppc_.size(); i++)
-          ppc_[i] = ppc;
+        for (unsigned int i = 0; i < ppc_m.size(); i++)
+          ppc_m[i] = ppc;
         iarg += 2;
       }
 
@@ -315,15 +315,15 @@ void Params::info() {
   std::cout << std::endl;
   for (size_t is = 0; is < get_species_number(); ++is) {
 
-    std::cout << " > Species " << is << ": " << species_names_[is] << "\n"
-              << "   - mass: " << mass_[is] << "\n"
-              << "   - charge: " << charge_[is] << "\n"
-              << "   - particles per cell: " << ppc_[is] << "\n"
-              << "   - temperature: " << temp_[is] << "\n"
-              << "   - drift velocity: " << drift_velocity_[is][0] << " " << drift_velocity_[is][1]
-              << " " << drift_velocity_[is][2] << "\n"
-              << "   - pos init method: " << position_initialization_method_[is] << "\n"
-              << "   - pos init level: " << position_initialization_level_[is] << "\n"
+    std::cout << " > Species " << is << ": " << species_names_m[is] << "\n"
+              << "   - mass: " << mass_m[is] << "\n"
+              << "   - charge: " << charge_m[is] << "\n"
+              << "   - particles per cell: " << ppc_m[is] << "\n"
+              << "   - temperature: " << temp_m[is] << "\n"
+              << "   - drift velocity: " << drift_velocity_m[is][0] << " " << drift_velocity_m[is][1]
+              << " " << drift_velocity_m[is][2] << "\n"
+              << "   - pos init method: " << position_initialization_method_m[is] << "\n"
+              << "   - pos init level: " << position_initialization_level_m[is] << "\n"
               << std::endl;
   }
 
@@ -372,21 +372,21 @@ void Params::info() {
   if (N > 0) {
     std::cout << " > Particle binning: " << std::endl;
     for (size_t id = 0; id < N; ++id) {
-      auto dim = particle_binning_properties_[id].axis_.size();
-      std::cout << "   - " << particle_binning_properties_[id].name_ << " on species ";
-      for (auto is : particle_binning_properties_[id].species_indexes_) {
+      auto dim = particle_binning_properties_m[id].axis_m.size();
+      std::cout << "   - " << particle_binning_properties_m[id].name_m << " on species ";
+      for (auto is : particle_binning_properties_m[id].species_indexes_m) {
         std::cout << is << " ";
       }
       std::cout << "\n";
       for (size_t d = 0; d < dim; ++d) {
-        std::cout << "     * axis " << d << ": " << particle_binning_properties_[id].axis_[d]
-                  << " [" << particle_binning_properties_[id].min_[d] << ", "
-                  << particle_binning_properties_[id].max_[d] << ", "
-                  << particle_binning_properties_[id].n_cells_[d] << "]"
+        std::cout << "     * axis " << d << ": " << particle_binning_properties_m[id].axis_m[d]
+                  << " [" << particle_binning_properties_m[id].min_m[d] << ", "
+                  << particle_binning_properties_m[id].max_m[d] << ", "
+                  << particle_binning_properties_m[id].n_cells_m[d] << "]"
                   << "\n";
       }
-      std::cout << "     * format: " << particle_binning_properties_[id].format_ << "\n";
-      std::cout << "     * output period: " << particle_binning_properties_[id].period_ << "\n";
+      std::cout << "     * format: " << particle_binning_properties_m[id].format_m << "\n";
+      std::cout << "     * output period: " << particle_binning_properties_m[id].period_m << "\n";
     }
   }
 

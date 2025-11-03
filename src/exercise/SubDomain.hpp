@@ -22,7 +22,7 @@ class SubDomain {
 public:
 
   // Init global fields
-  ElectroMagn em_;
+  ElectroMagn em_m;
 
   //! List of species to handle
   std::vector<Particles> particles_m;
@@ -61,12 +61,12 @@ public:
     // Fields
 
     // Allocate global fields
-    em_.allocate(params);
+    em_m.allocate(params);
 
     const double memory_consumption =
-      (em_.Ex_m.size() + em_.Ey_m.size() + em_.Ez_m.size() + em_.Bx_m.size() + em_.By_m.size() +
-       em_.Bz_m.size() +
-       (em_.Jx_m.size() + em_.Jy_m.size() + em_.Jz_m.size()) * (params.species_names_.size() + 1)) *
+      (em_m.Ex_m.size() + em_m.Ey_m.size() + em_m.Ez_m.size() + em_m.Bx_m.size() + em_m.By_m.size() +
+       em_m.Bz_m.size() +
+       (em_m.Jx_m.size() + em_m.Jy_m.size() + em_m.Jz_m.size()) * (params.species_names_m.size() + 1)) *
       8. / (1024. * 1024);
 
     std::cout << " Field grids: " << memory_consumption << " Mb" << std::endl << std::endl;
@@ -82,12 +82,12 @@ public:
     }
 
     for (unsigned int is = 0; is < n_species; is++) {
-      unsigned int n_particles = params.n_particles_by_species[is] + params.particles_to_add_.size();
+      unsigned int n_particles = params.n_particles_by_species[is] + params.particles_to_add_m.size();
 
       // Alloc memory to store particles
-      particles_m[is].allocate(params.charge_[is],
-                              params.mass_[is],
-                              params.temp_[is],
+      particles_m[is].allocate(params.charge_m[is],
+                              params.mass_m[is],
+                              params.temp_m[is],
                               n_particles,
                               params.inv_cell_volume);
     }
@@ -104,11 +104,11 @@ public:
 
     for (unsigned int is = 0; is < n_species; is++) {
 
-      double temperature = params.temp_[is];
-      const double mass  = params.mass_[is];
+      double temperature = params.temp_m[is];
+      const double mass  = params.mass_m[is];
 
       // Compute weight
-      const int particle_per_cell = params.ppc_[is];
+      const int particle_per_cell = params.ppc_m[is];
       const double weight_coef    = cell_volume / particle_per_cell;
 
       // global particle counter
@@ -116,16 +116,16 @@ public:
 
       // compute the species index for position init
       unsigned int species_index_for_pos_init = 0;
-      while (params.species_names_[species_index_for_pos_init] !=
-              params.position_initialization_method_[is] &&
+      while (params.species_names_m[species_index_for_pos_init] !=
+              params.position_initialization_method_m[is] &&
             (species_index_for_pos_init < is)) {
         ++species_index_for_pos_init;
       }
 
       // Coefficients for drift velocity
-      const double vx = -params.drift_velocity_[is][0];
-      const double vy = -params.drift_velocity_[is][1];
-      const double vz = -params.drift_velocity_[is][2];
+      const double vx = -params.drift_velocity_m[is][0];
+      const double vy = -params.drift_velocity_m[is][1];
+      const double vz = -params.drift_velocity_m[is][2];
 
       const double v_drift = vx * vx + vy * vy + vz * vz;
 
@@ -141,9 +141,9 @@ public:
       const double Lxz = gm1 * vx * vz / v_drift;
       const double Lyz = gm1 * vy * vz / v_drift;
 
-      // If param.position_initialization_method_[is] is random_per_cell, we init particles randomly
+      // If param.position_initialization_method_m[is] is random_per_cell, we init particles randomly
       // with a new seed for each cell.
-      if (params.position_initialization_level_[is] == "cell") {
+      if (params.position_initialization_level_m[is] == "cell") {
 
       // Loop over all cells
 
@@ -168,7 +168,7 @@ public:
               particles_per_cell_counter[is * total_cells + local_cell_index] = 0;
 
               // Random Position init
-              if (params.position_initialization_method_[is] == "random") {
+              if (params.position_initialization_method_m[is] == "random") {
 
                 for (auto p = 0; p < particle_per_cell; ++p) {
 
@@ -181,16 +181,16 @@ public:
 
                   // Get the density
                   const double w =
-                    params.density_profiles_[is](x / params.Lx, y / params.Ly, z / params.Lz);
+                    params.density_profiles_m[is](x / params.Lx, y / params.Ly, z / params.Lz);
 
                   // only initialize particle if the weight is positive
                   if (w > 1e-10) {
 
-                    particles_m[is].x_h_(ip) = x;
-                    particles_m[is].y_h_(ip) = y;
-                    particles_m[is].z_h_(ip) = z;
+                    particles_m[is].x_h_m(ip) = x;
+                    particles_m[is].y_h_m(ip) = y;
+                    particles_m[is].z_h_m(ip) = z;
 
-                    particles_m[is].weight_h_(ip) = w * weight_coef;
+                    particles_m[is].weight_h_m(ip) = w * weight_coef;
 
                     // increment the number of particles in this cell
                     ++particles_per_cell_counter[is * total_cells + local_cell_index];
@@ -209,24 +209,24 @@ public:
                   const auto ip = total_particles_counter + p;
 
                   // Position
-                  particles_m[is].x_h_(ip) = particles_m[species_index_for_pos_init].x_h_(ip);
-                  particles_m[is].y_h_(ip) = particles_m[species_index_for_pos_init].y_h_(ip);
-                  particles_m[is].z_h_(ip) = particles_m[species_index_for_pos_init].z_h_(ip);
+                  particles_m[is].x_h_m(ip) = particles_m[species_index_for_pos_init].x_h_m(ip);
+                  particles_m[is].y_h_m(ip) = particles_m[species_index_for_pos_init].y_h_m(ip);
+                  particles_m[is].z_h_m(ip) = particles_m[species_index_for_pos_init].z_h_m(ip);
 
                   // Get the density
-                  const double w = params.density_profiles_[is](
-                    static_cast<double>(particles_m[is].x_h_(ip)) / params.Lx,
-                    static_cast<double>(particles_m[is].y_h_(ip)) / params.Ly,
-                    static_cast<double>(particles_m[is].z_h_(ip)) / params.Lz);
+                  const double w = params.density_profiles_m[is](
+                    static_cast<double>(particles_m[is].x_h_m(ip)) / params.Lx,
+                    static_cast<double>(particles_m[is].y_h_m(ip)) / params.Ly,
+                    static_cast<double>(particles_m[is].z_h_m(ip)) / params.Lz);
 
                   // weight
-                  particles_m[is].weight_h_(ip) = w * weight_coef;
+                  particles_m[is].weight_h_m(ip) = w * weight_coef;
 
                   // increment the number of particles in this cell
                   ++particles_per_cell_counter[is * total_cells + local_cell_index];
                 }
 
-              } // end if param.position_initialization_method_
+              } // end if param.position_initialization_method_m
 
               for (auto p = 0; p < particles_per_cell_counter[is * total_cells + local_cell_index];
                  ++p) {
@@ -287,16 +287,16 @@ public:
 
                   } // here ends the corrections by Zenitani
 
-                  particles_m[is].mx_h_(ip) =
+                  particles_m[is].mx_h_m(ip) =
                     -gamma * gamma_drift * vx + Lxx * mx + Lxy * my + Lxz * mz;
-                  particles_m[is].my_h_(ip) =
+                  particles_m[is].my_h_m(ip) =
                     -gamma * gamma_drift * vy + Lxy * my + Lyy * my + Lyz * mz;
-                  particles_m[is].mz_h_(ip) =
+                  particles_m[is].mz_h_m(ip) =
                     -gamma * gamma_drift * vz + Lxz * mz + Lyz * my + Lzz * mz;
                 } else {
-                  particles_m[is].mx_h_(ip) = mx;
-                  particles_m[is].my_h_(ip) = my;
-                  particles_m[is].mz_h_(ip) = mz;
+                  particles_m[is].mx_h_m(ip) = mx;
+                  particles_m[is].my_h_m(ip) = my;
+                  particles_m[is].mz_h_m(ip) = mz;
                 }
 
               } // end for total_particles_counter
@@ -309,21 +309,21 @@ public:
           }
         }
 
-      } // end if position_initialization_level_ == cell
+      } // end if position_initialization_level_m == cell
 
       // Add single particles
-      for (size_t ip = 0; ip < params.particles_to_add_.size(); ++ip) {
-        if (params.particles_to_add_[ip].is_ == is) {
+      for (size_t ip = 0; ip < params.particles_to_add_m.size(); ++ip) {
+        if (params.particles_to_add_m[ip].is_m == is) {
 
-          const double w = params.particles_to_add_[ip].weight_;
+          const double w = params.particles_to_add_m[ip].weight_m;
 
-          const double x = params.particles_to_add_[ip].x_;
-          const double y = params.particles_to_add_[ip].y_;
-          const double z = params.particles_to_add_[ip].z_;
+          const double x = params.particles_to_add_m[ip].x_m;
+          const double y = params.particles_to_add_m[ip].y_m;
+          const double z = params.particles_to_add_m[ip].z_m;
 
-          const double mx = params.particles_to_add_[ip].mx_;
-          const double my = params.particles_to_add_[ip].my_;
-          const double mz = params.particles_to_add_[ip].mz_;
+          const double mx = params.particles_to_add_m[ip].mx_m;
+          const double my = params.particles_to_add_m[ip].my_m;
+          const double mz = params.particles_to_add_m[ip].mz_m;
 
           if ((x >= inf_m[0] && x < sup_m[0]) && (y >= inf_m[1] && y < sup_m[1]) &&
               (z >= inf_m[2] && z < sup_m[2])) {
@@ -348,15 +348,15 @@ public:
                 << "\n"
                 << std::endl;
 
-      em_.sync(minipic::device, minipic::host);
+      em_m.sync(minipic::device, minipic::host);
       for (size_t is = 0; is < particles_m.size(); ++is) {
         particles_m[is].sync(minipic::device, minipic::host);
       }
 
-      operators::interpolate(em_, particles_m);
+      operators::interpolate(em_m, particles_m);
       operators::push_momentum(particles_m, -0.5 * params.dt);
 
-      em_.sync(minipic::host, minipic::device);
+      em_m.sync(minipic::host, minipic::device);
       for (size_t is = 0; is < particles_m.size(); ++is) {
         particles_m[is].sync(minipic::host, minipic::device);
       }
@@ -364,7 +364,7 @@ public:
 
     // For each species, print :
     // - total number of particles
-    for (size_t is = 0; is < params.species_names_.size(); ++is) {
+    for (size_t is = 0; is < params.species_names_m.size(); ++is) {
       unsigned int total_number_of_particles = 0;
       double total_particle_energy           = 0;
 
@@ -372,7 +372,7 @@ public:
       total_particle_energy +=
         particles_m[is].get_kinetic_energy(minipic::host);
 
-      std::cout << " Species " << params.species_names_[is] << std::endl;
+      std::cout << " Species " << params.species_names_m[is] << std::endl;
 
       const double memory_consumption = total_number_of_particles * 14. * 8. / (1024. * 1024);
 
@@ -383,21 +383,21 @@ public:
 
     // Checksum for field
 
-    auto sum_Ex_on_host = operators::sum_power(em_.Ex_m, 1);
-    auto sum_Ey_on_host = operators::sum_power(em_.Ey_m, 1);
-    auto sum_Ez_on_host = operators::sum_power(em_.Ez_m, 1);
+    auto sum_Ex_on_host = operators::sum_power(em_m.Ex_m, 1);
+    auto sum_Ey_on_host = operators::sum_power(em_m.Ey_m, 1);
+    auto sum_Ez_on_host = operators::sum_power(em_m.Ez_m, 1);
 
-    auto sum_Bx_on_host = operators::sum_power(em_.Bx_m, 1);
-    auto sum_By_on_host = operators::sum_power(em_.By_m, 1);
-    auto sum_Bz_on_host = operators::sum_power(em_.Bz_m, 1);
+    auto sum_Bx_on_host = operators::sum_power(em_m.Bx_m, 1);
+    auto sum_By_on_host = operators::sum_power(em_m.By_m, 1);
+    auto sum_Bz_on_host = operators::sum_power(em_m.Bz_m, 1);
 
-    auto sum_Ex_on_device = operators::sum_power(em_.Ex_m, 1);
-    auto sum_Ey_on_device = operators::sum_power(em_.Ey_m, 1);
-    auto sum_Ez_on_device = operators::sum_power(em_.Ez_m, 1);
+    auto sum_Ex_on_device = operators::sum_power(em_m.Ex_m, 1);
+    auto sum_Ey_on_device = operators::sum_power(em_m.Ey_m, 1);
+    auto sum_Ez_on_device = operators::sum_power(em_m.Ez_m, 1);
 
-    auto sum_Bx_on_device = operators::sum_power(em_.Bx_m, 1);
-    auto sum_By_on_device = operators::sum_power(em_.By_m, 1);
-    auto sum_Bz_on_device = operators::sum_power(em_.Bz_m, 1);
+    auto sum_Bx_on_device = operators::sum_power(em_m.Bx_m, 1);
+    auto sum_By_on_device = operators::sum_power(em_m.By_m, 1);
+    auto sum_Bz_on_device = operators::sum_power(em_m.Bz_m, 1);
 
     static const int p = 3;
 
@@ -433,34 +433,34 @@ public:
     static const std::string vector_name[13] =
       {"weight", "x", "y", "z", "mx", "my", "mz", "Ex", "Ey", "Ez", "Bx", "By", "Bz"};
 
-      for (size_t is = 0; is < params.species_names_.size(); ++is) {
-        sum_host[0] += operators::sum_host(particles_m[is].weight_h_);
-        sum_host[1] += operators::sum_host(particles_m[is].x_h_);
-        sum_host[2] += operators::sum_host(particles_m[is].y_h_);
-        sum_host[3] += operators::sum_host(particles_m[is].z_h_);
-        sum_host[4] += operators::sum_host(particles_m[is].mx_h_);
-        sum_host[5] += operators::sum_host(particles_m[is].my_h_);
-        sum_host[6] += operators::sum_host(particles_m[is].mz_h_);
-        sum_host[7] += operators::sum_host(particles_m[is].Ex_h_);
-        sum_host[8] += operators::sum_host(particles_m[is].Ey_h_);
-        sum_host[9] += operators::sum_host(particles_m[is].Ez_h_);
-        sum_host[10] += operators::sum_host(particles_m[is].Bx_h_);
-        sum_host[11] += operators::sum_host(particles_m[is].By_h_);
-        sum_host[12] += operators::sum_host(particles_m[is].Bz_h_);
+      for (size_t is = 0; is < params.species_names_m.size(); ++is) {
+        sum_host[0] += operators::sum_host(particles_m[is].weight_h_m);
+        sum_host[1] += operators::sum_host(particles_m[is].x_h_m);
+        sum_host[2] += operators::sum_host(particles_m[is].y_h_m);
+        sum_host[3] += operators::sum_host(particles_m[is].z_h_m);
+        sum_host[4] += operators::sum_host(particles_m[is].mx_h_m);
+        sum_host[5] += operators::sum_host(particles_m[is].my_h_m);
+        sum_host[6] += operators::sum_host(particles_m[is].mz_h_m);
+        sum_host[7] += operators::sum_host(particles_m[is].Ex_h_m);
+        sum_host[8] += operators::sum_host(particles_m[is].Ey_h_m);
+        sum_host[9] += operators::sum_host(particles_m[is].Ez_h_m);
+        sum_host[10] += operators::sum_host(particles_m[is].Bx_h_m);
+        sum_host[11] += operators::sum_host(particles_m[is].By_h_m);
+        sum_host[12] += operators::sum_host(particles_m[is].Bz_h_m);
 
-        sum_device[0] += operators::sum_device(particles_m[is].weight_);
-        sum_device[1] += operators::sum_device(particles_m[is].x_);
-        sum_device[2] += operators::sum_device(particles_m[is].y_);
-        sum_device[3] += operators::sum_device(particles_m[is].z_);
-        sum_device[4] += operators::sum_device(particles_m[is].mx_);
-        sum_device[5] += operators::sum_device(particles_m[is].my_);
-        sum_device[6] += operators::sum_device(particles_m[is].mz_);
-        sum_device[7] += operators::sum_device(particles_m[is].Ex_);
-        sum_device[8] += operators::sum_device(particles_m[is].Ey_);
-        sum_device[9] += operators::sum_device(particles_m[is].Ez_);
-        sum_device[10] += operators::sum_device(particles_m[is].Bx_);
-        sum_device[11] += operators::sum_device(particles_m[is].By_);
-        sum_device[12] += operators::sum_device(particles_m[is].Bz_);
+        sum_device[0] += operators::sum_device(particles_m[is].weight_m);
+        sum_device[1] += operators::sum_device(particles_m[is].x_m);
+        sum_device[2] += operators::sum_device(particles_m[is].y_m);
+        sum_device[3] += operators::sum_device(particles_m[is].z_m);
+        sum_device[4] += operators::sum_device(particles_m[is].mx_m);
+        sum_device[5] += operators::sum_device(particles_m[is].my_m);
+        sum_device[6] += operators::sum_device(particles_m[is].mz_m);
+        sum_device[7] += operators::sum_device(particles_m[is].Ex_m);
+        sum_device[8] += operators::sum_device(particles_m[is].Ey_m);
+        sum_device[9] += operators::sum_device(particles_m[is].Ez_m);
+        sum_device[10] += operators::sum_device(particles_m[is].Bx_m);
+        sum_device[11] += operators::sum_device(particles_m[is].By_m);
+        sum_device[12] += operators::sum_device(particles_m[is].Bz_m);
 
       }
 
@@ -490,12 +490,12 @@ public:
 
       DEBUG("  -> start reset current");
 
-      em_.reset_currents(minipic::device);
+      em_m.reset_currents(minipic::device);
 
       DEBUG("  -> stop reset current");
     }
 
-    em_.sync(minipic::device, minipic::host);
+    em_m.sync(minipic::device, minipic::host);
     for (size_t is = 0; is < particles_m.size(); ++is) {
       particles_m[is].sync(minipic::device, minipic::host);
     }
@@ -503,7 +503,7 @@ public:
     // Interpolate from global field to particles
     DEBUG("  -> start interpolate ");
 
-    operators::interpolate(em_, particles_m);
+    operators::interpolate(em_m, particles_m);
 
     DEBUG("  -> stop interpolate");
 
@@ -521,7 +521,7 @@ public:
 
     DEBUG("  -> stop pushBC");
 
-    em_.sync(minipic::host, minipic::device);
+    em_m.sync(minipic::host, minipic::device);
     for (size_t is = 0; is < particles_m.size(); ++is) {
       particles_m[is].sync(minipic::host, minipic::device);
     }
@@ -545,7 +545,7 @@ public:
       // Projection directly in the global grid
       DEBUG("  ->  start projection");
 
-      operators::project(params, em_, particles_m);
+      operators::project(params, em_m, particles_m);
 
       DEBUG("  ->  stop projection");
 
@@ -559,7 +559,7 @@ public:
 
     if (params.current_projection || params.n_particles > 0) {
 
-      em_.sync(minipic::host, minipic::device);
+      em_m.sync(minipic::host, minipic::device);
       for (size_t is = 0; is < particles_m.size(); ++is) {
         particles_m[is].sync(minipic::host, minipic::device);
       }
@@ -567,7 +567,7 @@ public:
       // Perform the boundary conditions for current
       DEBUG("  -> start current BC")
 
-      operators::currentBC(params, em_);
+      operators::currentBC(params, em_m);
 
       DEBUG("  -> stop current BC")
 
@@ -578,30 +578,30 @@ public:
 
     if (params.maxwell_solver) {
 
-      em_.sync(minipic::device, minipic::host);
+      em_m.sync(minipic::device, minipic::host);
 
       // Generate a laser field with an antenna
-      for (size_t iantenna = 0; iantenna < params.antenna_profiles_.size(); iantenna++) {
+      for (size_t iantenna = 0; iantenna < params.antenna_profiles_m.size(); iantenna++) {
         operators::antenna(params,
-                           em_,
-                           params.antenna_profiles_[iantenna],
-                           params.antenna_positions_[iantenna],
+                           em_m,
+                           params.antenna_profiles_m[iantenna],
+                           params.antenna_positions_m[iantenna],
                            it * params.dt);
       }
 
       // Solve the Maxwell equation
       DEBUG("  -> start solve Maxwell")
 
-      operators::solve_maxwell(params, em_);
+      operators::solve_maxwell(params, em_m);
 
       DEBUG("  -> stop solve Maxwell")
 
-      em_.sync(minipic::host, minipic::device);
+      em_m.sync(minipic::host, minipic::device);
 
       // Boundary conditions on EM fields
       DEBUG("  -> start solve BC")
 
-      operators::solveBC(params, em_);
+      operators::solveBC(params, em_m);
 
       DEBUG("  -> end solve BC")
 
@@ -628,9 +628,9 @@ public:
       need_species[is] = false;
     }
 
-    for (auto particle_binning : params.particle_binning_properties_) {
-      if (!(it % particle_binning.period_)) {
-        for (auto is : particle_binning.species_indexes_) {
+    for (auto particle_binning : params.particle_binning_properties_m) {
+      if (!(it % particle_binning.period_m)) {
+        for (auto is : particle_binning.species_indexes_m) {
           // if number of particles > 0
           need_species[is] = true;
         }
@@ -654,66 +654,62 @@ public:
     delete[] need_species;
 
     if (!(it % params.field_diagnostics_period)) {
-      em_.sync(minipic::device, minipic::host);
+      em_m.sync(minipic::device, minipic::host);
     }
 
     // __________________________________________________________________
     // Start diagnostics
 
     // Particle binning
-    for (auto particle_binning : params.particle_binning_properties_) {
+    for (auto particle_binning : params.particle_binning_properties_m) {
 
       // for each species index of this diagnostic
-      for (auto is : particle_binning.species_indexes_) {
+      for (auto is : particle_binning.species_indexes_m) {
 
-        if (!(it % particle_binning.period_)) {
+        if (!(it % particle_binning.period_m)) {
 
           // Call the particle binning function using the properties in particle_binning
-          Diags::particle_binning(particle_binning.name_,
+          Diags::particle_binning(particle_binning.name_m,
                                   params,
                                   particles_m[is],
-                                  particle_binning.projected_parameter_,
-                                  particle_binning.axis_,
-                                  particle_binning.n_cells_,
-                                  particle_binning.min_,
-                                  particle_binning.max_,
+                                  particle_binning.projected_parameter_m,
+                                  particle_binning.axis_m,
+                                  particle_binning.n_cells_m,
+                                  particle_binning.min_m,
+                                  particle_binning.max_m,
                                   is,
                                   it,
-                                  particle_binning.format_,
+                                  particle_binning.format_m,
                                   false);
 
         } // end if test it % period
       }
-    } // end loop on particle_binning_properties_
+    } // end loop on particle_binning_properties_m
 
     // Particle Clouds
     if ((params.particle_cloud_period < params.n_it) &&
         (!(it % params.particle_cloud_period) or (it == 0))) {
 
       for (size_t is = 0; is < params.get_species_number(); ++is) {
-
         Diags::particle_cloud("cloud", params, particles_m[is], is, it, params.particle_cloud_format);
       }
     }
 
     // Field diagnostics
     if (!(it % params.field_diagnostics_period)) {
-
-      Diags::fields(params, em_, it, params.field_diagnostics_format);
+      Diags::fields(params, em_m, it, params.field_diagnostics_format);
     }
 
     // Scalars diagnostics
     if (!(it % params.scalar_diagnostics_period)) {
       for (size_t is = 0; is < params.get_species_number(); ++is) {
-
         Diags::scalars(params, particles_m[is], is, it);
       }
     }
 
     if (!(it % params.scalar_diagnostics_period)) {
       {
-
-        Diags::scalars(params, em_, it);
+        Diags::scalars(params, em_m, it);
       }
     }
 
