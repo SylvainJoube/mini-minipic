@@ -114,29 +114,29 @@ public:
     DEBUG("Start Allocate electric fields");
     Ex_m = view_t("Ex", nx_d_m, ny_p_m, nz_p_m);
     Ex_h_m = Kokkos::create_mirror_view(Ex_m);
-    Kokkos::deep_copy(Ex_h_m, params.E0_[0]);
+    Kokkos::deep_copy(Ex_h_m, params.E0_m[0]);
 
     Ey_m = view_t("Ey", nx_p_m, ny_d_m, nz_p_m);
     Ey_h_m = Kokkos::create_mirror_view(Ey_m);
-    Kokkos::deep_copy(Ey_h_m, params.E0_[1]);
+    Kokkos::deep_copy(Ey_h_m, params.E0_m[1]);
 
     Ez_m = view_t("Ez", nx_p_m, ny_p_m, nz_d_m);
     Ez_h_m = Kokkos::create_mirror_view(Ez_m);
-    Kokkos::deep_copy(Ez_h_m, params.E0_[2]);
+    Kokkos::deep_copy(Ez_h_m, params.E0_m[2]);
     DEBUG("End Allocate electric fields");
 
     DEBUG("Start Allocate magnetic fields");
     Bx_m = view_t("Bx", nx_p_m, ny_d_m, nz_d_m);
     Bx_h_m = Kokkos::create_mirror_view(Bx_m);
-    Kokkos::deep_copy(Bx_h_m, params.B0_[0]);
+    Kokkos::deep_copy(Bx_h_m, params.B0_m[0]);
 
     By_m = view_t("By", nx_d_m, ny_p_m, nz_d_m);
     By_h_m = Kokkos::create_mirror_view(By_m);
-    Kokkos::deep_copy(By_h_m, params.B0_[1]);
+    Kokkos::deep_copy(By_h_m, params.B0_m[1]);
 
     Bz_m = view_t("Bz", nx_d_m, ny_d_m, nz_p_m);
     Bz_h_m = Kokkos::create_mirror_view(Bz_m);
-    Kokkos::deep_copy(Bz_h_m, params.B0_[2]);
+    Kokkos::deep_copy(Bz_h_m, params.B0_m[2]);
     DEBUG("End Allocate magnetic fields");
 
     // Load all field to the device

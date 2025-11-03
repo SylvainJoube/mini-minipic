@@ -97,17 +97,17 @@ auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
     ElectroMagn::view_t By = em.By_m;
     ElectroMagn::view_t Bz = em.Bz_m;
 
-    Particles::view_t x = particles[is].x_;
-    Particles::view_t y = particles[is].y_;
-    Particles::view_t z = particles[is].z_;
+    Particles::view_t x = particles[is].x_m;
+    Particles::view_t y = particles[is].y_m;
+    Particles::view_t z = particles[is].z_m;
 
-    Particles::view_t Exp = particles[is].Ex_;
-    Particles::view_t Eyp = particles[is].Ey_;
-    Particles::view_t Ezp = particles[is].Ez_;
+    Particles::view_t Exp = particles[is].Ex_m;
+    Particles::view_t Eyp = particles[is].Ey_m;
+    Particles::view_t Ezp = particles[is].Ez_m;
 
-    Particles::view_t Bxp = particles[is].Bx_;
-    Particles::view_t Byp = particles[is].By_;
-    Particles::view_t Bzp = particles[is].Bz_;
+    Particles::view_t Bxp = particles[is].Bx_m;
+    Particles::view_t Byp = particles[is].By_m;
+    Particles::view_t Bzp = particles[is].Bz_m;
 
     Kokkos::parallel_for(
       n_particles,
@@ -266,21 +266,21 @@ auto push(std::vector<Particles> &particles, double dt) -> void {
     const double qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
 
     particles[is].sync(minipic::device, minipic::host);
-    Particles::view_t x = particles[is].x_;
-    Particles::view_t y = particles[is].y_;
-    Particles::view_t z = particles[is].z_;
+    Particles::view_t x = particles[is].x_m;
+    Particles::view_t y = particles[is].y_m;
+    Particles::view_t z = particles[is].z_m;
 
-    Particles::view_t mx = particles[is].mx_;
-    Particles::view_t my = particles[is].my_;
-    Particles::view_t mz = particles[is].mz_;
+    Particles::view_t mx = particles[is].mx_m;
+    Particles::view_t my = particles[is].my_m;
+    Particles::view_t mz = particles[is].mz_m;
 
-    Particles::view_t Exp = particles[is].Ex_;
-    Particles::view_t Eyp = particles[is].Ey_;
-    Particles::view_t Ezp = particles[is].Ez_;
+    Particles::view_t Exp = particles[is].Ex_m;
+    Particles::view_t Eyp = particles[is].Ey_m;
+    Particles::view_t Ezp = particles[is].Ez_m;
 
-    Particles::view_t Bxp = particles[is].Bx_;
-    Particles::view_t Byp = particles[is].By_;
-    Particles::view_t Bzp = particles[is].Bz_;
+    Particles::view_t Bxp = particles[is].Bx_m;
+    Particles::view_t Byp = particles[is].By_m;
+    Particles::view_t Bzp = particles[is].Bz_m;
 
     Kokkos::parallel_for(
       n_particles,
@@ -357,17 +357,17 @@ auto push_momentum(std::vector<Particles> &particles, double dt) -> void {
     // q' = dt * (q/2m)
     const double qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
 
-    Particles::view_t mx = particles[is].mx_;
-    Particles::view_t my = particles[is].my_;
-    Particles::view_t mz = particles[is].mz_;
+    Particles::view_t mx = particles[is].mx_m;
+    Particles::view_t my = particles[is].my_m;
+    Particles::view_t mz = particles[is].mz_m;
 
-    Particles::view_t Exp = particles[is].Ex_;
-    Particles::view_t Eyp = particles[is].Ey_;
-    Particles::view_t Ezp = particles[is].Ez_;
+    Particles::view_t Exp = particles[is].Ex_m;
+    Particles::view_t Eyp = particles[is].Ey_m;
+    Particles::view_t Ezp = particles[is].Ez_m;
 
-    Particles::view_t Bxp = particles[is].Bx_;
-    Particles::view_t Byp = particles[is].By_;
-    Particles::view_t Bzp = particles[is].Bz_;
+    Particles::view_t Bxp = particles[is].Bx_m;
+    Particles::view_t Byp = particles[is].By_m;
+    Particles::view_t Bzp = particles[is].Bz_m;
 
     Kokkos::parallel_for(
       n_particles,
@@ -443,9 +443,9 @@ auto pushBC(Params &params, std::vector<Particles> &particles) -> void {
 
       unsigned int n_particles = particles[is].size();
 
-      Particles::view_t x = particles[is].x_;
-      Particles::view_t y = particles[is].y_;
-      Particles::view_t z = particles[is].z_;
+      Particles::view_t x = particles[is].x_m;
+      Particles::view_t y = particles[is].y_m;
+      Particles::view_t z = particles[is].z_m;
 
       Kokkos::parallel_for(
           n_particles,
@@ -476,13 +476,13 @@ auto pushBC(Params &params, std::vector<Particles> &particles) -> void {
 
       unsigned int n_particles = particles[is].size();
 
-      Particles::view_t x = particles[is].x_;
-      Particles::view_t y = particles[is].y_;
-      Particles::view_t z = particles[is].z_;
+      Particles::view_t x = particles[is].x_m;
+      Particles::view_t y = particles[is].y_m;
+      Particles::view_t z = particles[is].z_m;
 
-      Particles::view_t mx = particles[is].mx_;
-      Particles::view_t my = particles[is].my_;
-      Particles::view_t mz = particles[is].mz_;
+      Particles::view_t mx = particles[is].mx_m;
+      Particles::view_t my = particles[is].my_m;
+      Particles::view_t mz = particles[is].mz_m;
 
       Kokkos::parallel_for(
           n_particles,
@@ -559,15 +559,15 @@ void project(Params &params, ElectroMagn &em, std::vector<Particles> &particles)
     const int n_particles            = particles[is].size();
     const double inv_cell_volume_x_q = params.inv_cell_volume * particles[is].charge_m;
 
-    Particles::view_t w = particles[is].weight_;
+    Particles::view_t w = particles[is].weight_m;
 
-    Particles::view_t x = particles[is].x_;
-    Particles::view_t y = particles[is].y_;
-    Particles::view_t z = particles[is].z_;
+    Particles::view_t x = particles[is].x_m;
+    Particles::view_t y = particles[is].y_m;
+    Particles::view_t z = particles[is].z_m;
 
-    Particles::view_t mx = particles[is].mx_;
-    Particles::view_t my = particles[is].my_;
-    Particles::view_t mz = particles[is].mz_;
+    Particles::view_t mx = particles[is].mx_m;
+    Particles::view_t my = particles[is].my_m;
+    Particles::view_t mz = particles[is].mz_m;
 
     Kokkos::parallel_for(
       n_particles,

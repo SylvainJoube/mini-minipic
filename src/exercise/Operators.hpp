@@ -92,9 +92,9 @@ auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
 
     for (unsigned int part = 0; part < n_particles; ++part) {
       // Calculate normalized positions
-      const double ixn = particles[is].x_h_(part) * em.inv_dx_m;
-      const double iyn = particles[is].y_h_(part) * em.inv_dy_m;
-      const double izn = particles[is].z_h_(part) * em.inv_dz_m;
+      const double ixn = particles[is].x_h_m(part) * em.inv_dx_m;
+      const double iyn = particles[is].y_h_m(part) * em.inv_dy_m;
+      const double izn = particles[is].z_h_m(part) * em.inv_dz_m;
 
       // Compute indexes in global primal grid
       const unsigned int ixp = floor(ixn);
@@ -124,7 +124,7 @@ auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
         const double v0 = v00 * (1 - coeffs[1]) + v10 * coeffs[1];
         const double v1 = v01 * (1 - coeffs[1]) + v11 * coeffs[1];
 
-        particles[is].Ex_h_(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
+        particles[is].Ex_h_m(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
       }
 
       // Ey (p, d, p)
@@ -142,7 +142,7 @@ auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
         const double v0 = v00 * (1 - coeffs[1]) + v10 * coeffs[1];
         const double v1 = v01 * (1 - coeffs[1]) + v11 * coeffs[1];
 
-        particles[is].Ey_h_(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
+        particles[is].Ey_h_m(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
       }
 
       // Ez (p, p, d)
@@ -160,7 +160,7 @@ auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
         const double v0 = v00 * (1 - coeffs[1]) + v10 * coeffs[1];
         const double v1 = v01 * (1 - coeffs[1]) + v11 * coeffs[1];
 
-        particles[is].Ez_h_(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
+        particles[is].Ez_h_m(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
       }
 
       // interpolation magnetic field
@@ -179,7 +179,7 @@ auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
         const double v0 = v00 * (1 - coeffs[1]) + v10 * coeffs[1];
         const double v1 = v01 * (1 - coeffs[1]) + v11 * coeffs[1];
 
-        particles[is].Bx_h_(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
+        particles[is].Bx_h_m(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
       }
 
       // By (d, p, d)
@@ -197,7 +197,7 @@ auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
         const double v0 = v00 * (1 - coeffs[1]) + v10 * coeffs[1];
         const double v1 = v01 * (1 - coeffs[1]) + v11 * coeffs[1];
 
-        particles[is].By_h_(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
+        particles[is].By_h_m(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
       }
 
       // Bz (d, d, p)
@@ -215,7 +215,7 @@ auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
         const double v0 = v00 * (1 - coeffs[1]) + v10 * coeffs[1];
         const double v1 = v01 * (1 - coeffs[1]) + v11 * coeffs[1];
 
-        particles[is].Bz_h_(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
+        particles[is].Bz_h_m(part) = v0 * (1 - coeffs[2]) + v1 * coeffs[2];
       }
     } // End for each particle
 
@@ -239,13 +239,13 @@ auto push(std::vector<Particles> &particles, double dt) -> void {
 
     for (unsigned int ip = 0; ip < n_particles; ++ip) {
       // 1/2 E
-      double px = qp * particles[is].Ex_h_(ip);
-      double py = qp * particles[is].Ey_h_(ip);
-      double pz = qp * particles[is].Ez_h_(ip);
+      double px = qp * particles[is].Ex_h_m(ip);
+      double py = qp * particles[is].Ey_h_m(ip);
+      double pz = qp * particles[is].Ez_h_m(ip);
 
-      const double ux = particles[is].mx_h_(ip) + px;
-      const double uy = particles[is].my_h_(ip) + py;
-      const double uz = particles[is].mz_h_(ip) + pz;
+      const double ux = particles[is].mx_h_m(ip) + px;
+      const double uy = particles[is].my_h_m(ip) + py;
+      const double uz = particles[is].mz_h_m(ip) + pz;
 
       // gamma-factor
       double usq       = (ux * ux + uy * uy + uz * uz);
@@ -253,9 +253,9 @@ auto push(std::vector<Particles> &particles, double dt) -> void {
       double gamma_inv = qp / gamma;
 
       // B, T = Transform to rotate the particle
-      const double tx  = gamma_inv * particles[is].Bx_h_(ip);
-      const double ty  = gamma_inv * particles[is].By_h_(ip);
-      const double tz  = gamma_inv * particles[is].Bz_h_(ip);
+      const double tx  = gamma_inv * particles[is].Bx_h_m(ip);
+      const double ty  = gamma_inv * particles[is].By_h_m(ip);
+      const double tz  = gamma_inv * particles[is].Bz_h_m(ip);
       const double tsq = 1. + (tx * tx + ty * ty + tz * tz);
       double tsq_inv   = 1. / tsq;
 
@@ -279,14 +279,14 @@ auto push(std::vector<Particles> &particles, double dt) -> void {
       gamma_inv = 1 / gamma;
 
       // Update momentum
-      particles[is].mx_h_(ip) = px;
-      particles[is].my_h_(ip) = py;
-      particles[is].mz_h_(ip) = pz;
+      particles[is].mx_h_m(ip) = px;
+      particles[is].my_h_m(ip) = py;
+      particles[is].mz_h_m(ip) = pz;
 
       // Update positions
-      particles[is].x_h_(ip) += particles[is].mx_h_(ip) * dt * gamma_inv;
-      particles[is].y_h_(ip) += particles[is].my_h_(ip) * dt * gamma_inv;
-      particles[is].z_h_(ip) += particles[is].mz_h_(ip) * dt * gamma_inv;
+      particles[is].x_h_m(ip) += particles[is].mx_h_m(ip) * dt * gamma_inv;
+      particles[is].y_h_m(ip) += particles[is].my_h_m(ip) * dt * gamma_inv;
+      particles[is].z_h_m(ip) += particles[is].mz_h_m(ip) * dt * gamma_inv;
     }
   } // Loop on species
 }
@@ -308,13 +308,13 @@ auto push_momentum(std::vector<Particles> &particles, double dt) -> void {
 
     for(int ip = 0; ip < n_particles; ++ip) {
       // 1/2 E
-      double px = qp * particles[is].Ex_h_(ip);
-      double py = qp * particles[is].Ey_h_(ip);
-      double pz = qp * particles[is].Ez_h_(ip);
+      double px = qp * particles[is].Ex_h_m(ip);
+      double py = qp * particles[is].Ey_h_m(ip);
+      double pz = qp * particles[is].Ez_h_m(ip);
 
-      const double ux = particles[is].mx_h_(ip) + px;
-      const double uy = particles[is].my_h_(ip) + py;
-      const double uz = particles[is].mz_h_(ip) + pz;
+      const double ux = particles[is].mx_h_m(ip) + px;
+      const double uy = particles[is].my_h_m(ip) + py;
+      const double uz = particles[is].mz_h_m(ip) + pz;
 
       // gamma-factor
       double usq       = (ux * ux + uy * uy + uz * uz);
@@ -322,9 +322,9 @@ auto push_momentum(std::vector<Particles> &particles, double dt) -> void {
       double gamma_inv = qp / gamma;
 
       // B, T = Transform to rotate the particle
-      const double tx  = gamma_inv * particles[is].Bx_h_(ip);
-      const double ty  = gamma_inv * particles[is].By_h_(ip);
-      const double tz  = gamma_inv * particles[is].Bz_h_(ip);
+      const double tx  = gamma_inv * particles[is].Bx_h_m(ip);
+      const double ty  = gamma_inv * particles[is].By_h_m(ip);
+      const double tz  = gamma_inv * particles[is].Bz_h_m(ip);
       const double tsq = 1. + (tx * tx + ty * ty + tz * tz);
       double tsq_inv   = 1. / tsq;
 
@@ -348,9 +348,9 @@ auto push_momentum(std::vector<Particles> &particles, double dt) -> void {
       gamma_inv = 1 / gamma;
 
       // Update momentum
-      particles[is].mx_h_(ip) = px;
-      particles[is].my_h_(ip) = py;
-      particles[is].mz_h_(ip) = pz;
+      particles[is].mx_h_m(ip) = px;
+      particles[is].my_h_m(ip) = py;
+      particles[is].mz_h_m(ip) = pz;
     } // end for particles
 
   } // end for species
@@ -378,9 +378,9 @@ auto pushBC(Params &params, std::vector<Particles> &particles) -> void {
 
       unsigned int n_particles = particles[is].size();
 
-      Particles::hostview_t x = particles[is].x_h_;
-      Particles::hostview_t y = particles[is].y_h_;
-      Particles::hostview_t z = particles[is].z_h_;
+      Particles::hostview_t x = particles[is].x_h_m;
+      Particles::hostview_t y = particles[is].y_h_m;
+      Particles::hostview_t z = particles[is].z_h_m;
 
       for (unsigned int part = 0; part < n_particles; ++part) {
           double *pos[3] = {&x(part), &y(part), &z(part)};
@@ -407,13 +407,13 @@ auto pushBC(Params &params, std::vector<Particles> &particles) -> void {
 
       unsigned int n_particles = particles[is].size();
 
-      Particles::hostview_t x = particles[is].x_h_;
-      Particles::hostview_t y = particles[is].y_h_;
-      Particles::hostview_t z = particles[is].z_h_;
+      Particles::hostview_t x = particles[is].x_h_m;
+      Particles::hostview_t y = particles[is].y_h_m;
+      Particles::hostview_t z = particles[is].z_h_m;
 
-      Particles::hostview_t mx = particles[is].mx_h_;
-      Particles::hostview_t my = particles[is].my_h_;
-      Particles::hostview_t mz = particles[is].mz_h_;
+      Particles::hostview_t mx = particles[is].mx_h_m;
+      Particles::hostview_t my = particles[is].my_h_m;
+      Particles::hostview_t mz = particles[is].mz_h_m;
 
       for(unsigned int part = 0; part < n_particles; ++part) {
           double *pos[3] = {&x(part), &y(part), &z(part)};
@@ -455,13 +455,13 @@ void project(Params &params, ElectroMagn &em, std::vector<Particles> &particles)
     const int n_particles            = particles[is].size();
     const double inv_cell_volume_x_q = params.inv_cell_volume * particles[is].charge_m;
 
-    Particles::hostview_t mx = particles[is].mx_h_;
-    Particles::hostview_t my = particles[is].my_h_;
-    Particles::hostview_t mz = particles[is].mz_h_;
+    Particles::hostview_t mx = particles[is].mx_h_m;
+    Particles::hostview_t my = particles[is].my_h_m;
+    Particles::hostview_t mz = particles[is].mz_h_m;
 
     for (int part = 0; part < n_particles; ++part) {
       // Delete if already compute by Pusher
-      const double charge_weight = inv_cell_volume_x_q * particles[is].weight_h_(part);
+      const double charge_weight = inv_cell_volume_x_q * particles[is].weight_h_m(part);
 
       const double gamma_inv =
         1 / std::sqrt(1 + (mx(part) * mx(part) + my(part) * my(part) + mz(part) * mz(part)));
@@ -478,9 +478,9 @@ void project(Params &params, ElectroMagn &em, std::vector<Particles> &particles)
       // We come back 1/2 time step back in time for the position because of the leap frog scheme
       // As a consequence, we also have `+ 1` because the current grids have 2 additional ghost
       // cells (1 the min and 1 at the max border) when the direction is primal
-      const double posxn = (particles[is].x_h_(part) - 0.5 * params.dt * vx) * params.inv_dx + 1;
-      const double posyn = (particles[is].y_h_(part) - 0.5 * params.dt * vy) * params.inv_dy + 1;
-      const double poszn = (particles[is].z_h_(part) - 0.5 * params.dt * vz) * params.inv_dz + 1;
+      const double posxn = (particles[is].x_h_m(part) - 0.5 * params.dt * vx) * params.inv_dx + 1;
+      const double posyn = (particles[is].y_h_m(part) - 0.5 * params.dt * vy) * params.inv_dy + 1;
+      const double poszn = (particles[is].z_h_m(part) - 0.5 * params.dt * vz) * params.inv_dz + 1;
 
       // Compute indexes in primal grid
       const int ixp = (int)(std::floor(posxn));
