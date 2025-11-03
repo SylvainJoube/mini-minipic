@@ -25,7 +25,7 @@ public:
   ElectroMagn em_;
 
   //! List of species to handle
-  std::vector<Particles<mini_float>> particles_m;
+  std::vector<Particles> particles_m;
 
   //! Boundaries box of the subdomain
   double inf_m[3];
@@ -79,10 +79,10 @@ public:
     // Alloc vector for each species
     if (n_species > 0) {
       particles_m.resize(n_species);
-    }    
+    }
 
     for (unsigned int is = 0; is < n_species; is++) {
-      int n_particles = params.n_particles_by_species[is] + params.particles_to_add_.size();
+      unsigned int n_particles = params.n_particles_by_species[is] + params.particles_to_add_.size();
 
       // Alloc memory to store particles
       particles_m[is].allocate(params.charge_[is],
@@ -147,13 +147,13 @@ public:
 
       // Loop over all cells
 
-        for (int i = 0; i < params.nx_cells; i++) {
-          for (int j = 0; j < params.ny_cells; j++) {
-            for (int k = 0; k < params.nz_cells; k++) {
+        for (std::size_t i = 0; i < params.nx_cells; i++) {
+          for (std::size_t j = 0; j < params.ny_cells; j++) {
+            for (std::size_t k = 0; k < params.nz_cells; k++) {
 
-              const int i_global = i;
-              const int j_global = j;
-              const int k_global = k;
+              const std::size_t i_global = i;
+              const std::size_t j_global = j;
+              const std::size_t k_global = k;
 
               // Local cell index
               const int local_cell_index = i * (params.ny_cells * params.nz_cells) + j * params.nz_cells + k;
@@ -194,7 +194,7 @@ public:
 
                     // increment the number of particles in this cell
                     ++particles_per_cell_counter[is * total_cells + local_cell_index];
-                  }                  
+                  }
 
                 } // end for particles
 
@@ -383,21 +383,21 @@ public:
 
     // Checksum for field
 
-    auto sum_Ex_on_host = em_.Ex_m.sum(1, minipic::host);
-    auto sum_Ey_on_host = em_.Ey_m.sum(1, minipic::host);
-    auto sum_Ez_on_host = em_.Ez_m.sum(1, minipic::host);
+    auto sum_Ex_on_host = operators::sum_power(em_.Ex_m, 1);
+    auto sum_Ey_on_host = operators::sum_power(em_.Ey_m, 1);
+    auto sum_Ez_on_host = operators::sum_power(em_.Ez_m, 1);
 
-    auto sum_Bx_on_host = em_.Bx_m.sum(1, minipic::host);
-    auto sum_By_on_host = em_.By_m.sum(1, minipic::host);
-    auto sum_Bz_on_host = em_.Bz_m.sum(1, minipic::host);
+    auto sum_Bx_on_host = operators::sum_power(em_.Bx_m, 1);
+    auto sum_By_on_host = operators::sum_power(em_.By_m, 1);
+    auto sum_Bz_on_host = operators::sum_power(em_.Bz_m, 1);
 
-    auto sum_Ex_on_device = em_.Ex_m.sum(1, minipic::device);
-    auto sum_Ey_on_device = em_.Ey_m.sum(1, minipic::device);
-    auto sum_Ez_on_device = em_.Ez_m.sum(1, minipic::device);
+    auto sum_Ex_on_device = operators::sum_power(em_.Ex_m, 1);
+    auto sum_Ey_on_device = operators::sum_power(em_.Ey_m, 1);
+    auto sum_Ez_on_device = operators::sum_power(em_.Ez_m, 1);
 
-    auto sum_Bx_on_device = em_.Bx_m.sum(1, minipic::device);
-    auto sum_By_on_device = em_.By_m.sum(1, minipic::device);
-    auto sum_Bz_on_device = em_.Bz_m.sum(1, minipic::device);
+    auto sum_Bx_on_device = operators::sum_power(em_.Bx_m, 1);
+    auto sum_By_on_device = operators::sum_power(em_.By_m, 1);
+    auto sum_Bz_on_device = operators::sum_power(em_.Bz_m, 1);
 
     static const int p = 3;
 
@@ -434,33 +434,33 @@ public:
       {"weight", "x", "y", "z", "mx", "my", "mz", "Ex", "Ey", "Ez", "Bx", "By", "Bz"};
 
       for (size_t is = 0; is < params.species_names_.size(); ++is) {
-        sum_host[0] += operators::sum_host<double>(particles_m[is].weight_h_);
-        sum_host[1] += operators::sum_host<double>(particles_m[is].x_h_);
-        sum_host[2] += operators::sum_host<double>(particles_m[is].y_h_);
-        sum_host[3] += operators::sum_host<double>(particles_m[is].z_h_);
-        sum_host[4] += operators::sum_host<double>(particles_m[is].mx_h_);
-        sum_host[5] += operators::sum_host<double>(particles_m[is].my_h_);
-        sum_host[6] += operators::sum_host<double>(particles_m[is].mz_h_);
-        sum_host[7] += operators::sum_host<double>(particles_m[is].Ex_h_);
-        sum_host[8] += operators::sum_host<double>(particles_m[is].Ey_h_);
-        sum_host[9] += operators::sum_host<double>(particles_m[is].Ez_h_);
-        sum_host[10] += operators::sum_host<double>(particles_m[is].Bx_h_);
-        sum_host[11] += operators::sum_host<double>(particles_m[is].By_h_);
-        sum_host[12] += operators::sum_host<double>(particles_m[is].Bz_h_);
+        sum_host[0] += operators::sum_host(particles_m[is].weight_h_);
+        sum_host[1] += operators::sum_host(particles_m[is].x_h_);
+        sum_host[2] += operators::sum_host(particles_m[is].y_h_);
+        sum_host[3] += operators::sum_host(particles_m[is].z_h_);
+        sum_host[4] += operators::sum_host(particles_m[is].mx_h_);
+        sum_host[5] += operators::sum_host(particles_m[is].my_h_);
+        sum_host[6] += operators::sum_host(particles_m[is].mz_h_);
+        sum_host[7] += operators::sum_host(particles_m[is].Ex_h_);
+        sum_host[8] += operators::sum_host(particles_m[is].Ey_h_);
+        sum_host[9] += operators::sum_host(particles_m[is].Ez_h_);
+        sum_host[10] += operators::sum_host(particles_m[is].Bx_h_);
+        sum_host[11] += operators::sum_host(particles_m[is].By_h_);
+        sum_host[12] += operators::sum_host(particles_m[is].Bz_h_);
 
-        sum_device[0] += operators::sum_device<double>(particles_m[is].weight_);
-        sum_device[1] += operators::sum_device<double>(particles_m[is].x_);
-        sum_device[2] += operators::sum_device<double>(particles_m[is].y_);
-        sum_device[3] += operators::sum_device<double>(particles_m[is].z_);
-        sum_device[4] += operators::sum_device<double>(particles_m[is].mx_);
-        sum_device[5] += operators::sum_device<double>(particles_m[is].my_);
-        sum_device[6] += operators::sum_device<double>(particles_m[is].mz_);
-        sum_device[7] += operators::sum_device<double>(particles_m[is].Ex_);
-        sum_device[8] += operators::sum_device<double>(particles_m[is].Ey_);
-        sum_device[9] += operators::sum_device<double>(particles_m[is].Ez_);
-        sum_device[10] += operators::sum_device<double>(particles_m[is].Bx_);
-        sum_device[11] += operators::sum_device<double>(particles_m[is].By_);
-        sum_device[12] += operators::sum_device<double>(particles_m[is].Bz_);
+        sum_device[0] += operators::sum_device(particles_m[is].weight_);
+        sum_device[1] += operators::sum_device(particles_m[is].x_);
+        sum_device[2] += operators::sum_device(particles_m[is].y_);
+        sum_device[3] += operators::sum_device(particles_m[is].z_);
+        sum_device[4] += operators::sum_device(particles_m[is].mx_);
+        sum_device[5] += operators::sum_device(particles_m[is].my_);
+        sum_device[6] += operators::sum_device(particles_m[is].mz_);
+        sum_device[7] += operators::sum_device(particles_m[is].Ex_);
+        sum_device[8] += operators::sum_device(particles_m[is].Ey_);
+        sum_device[9] += operators::sum_device(particles_m[is].Ez_);
+        sum_device[10] += operators::sum_device(particles_m[is].Bx_);
+        sum_device[11] += operators::sum_device(particles_m[is].By_);
+        sum_device[12] += operators::sum_device(particles_m[is].Bz_);
 
       }
 

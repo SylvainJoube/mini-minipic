@@ -24,15 +24,15 @@
 //! \param[in] format - (optional argument) - determine the output format, can
 //! be `binary` (default) or `vtk`
 // _____________________________________________________
-void Params::add_particle_binning(std::string diag_name,
-                                  std::string projected_parameter,
-                                  std::vector<std::string> axis,
-                                  std::vector<int> n_cells,
-                                  std::vector<double> min,
-                                  std::vector<double> max,
-                                  std::vector<int> species_indexes,
+void Params::add_particle_binning(const std::string& diag_name,
+                                  const std::string& projected_parameter,
+                                  const std::vector<std::string>& axis,
+                                  const std::vector<std::size_t>& n_cells,
+                                  const std::vector<double>& min,
+                                  const std::vector<double>& max,
+                                  const std::vector<int>& species_indexes,
                                   int period,
-                                  std::string format) {
+                                  const std::string& format) {
 
   // Check that the number of axis is the same as the number of cells, min and max
   if (axis.size() != n_cells.size() or axis.size() != min.size() or axis.size() != max.size()) {
@@ -55,7 +55,7 @@ void Params::add_particle_binning(std::string diag_name,
   }
 
   // Check that the number of cells is not zero
-  for (unsigned int i = 0; i < n_cells.size(); i++) {
+  for (std::size_t i = 0; i < n_cells.size(); i++) {
     if (n_cells[i] == 0) {
       ERROR("ERROR in the particle binning creation: The number of cells is zero" << std::endl);
       std::raise(SIGABRT);
@@ -129,15 +129,15 @@ void Params::add_imbalance(std::function<double(double, double, double, double)>
 //! \param position_initiatization_method Method to use for position init
 //! \param position_initiatization_level Level to use for position init
 // _________________________________________________________________________________________________
-void Params::add_species(std::string name,
+void Params::add_species(const std::string& name,
                          double mass,
                          double charge,
                          double temp,
                          std::function<double(double, double, double)> density_profile,
-                         std::vector<double> drift_velocity,
+                         const std::vector<double>& drift_velocity,
                          double ppc,
-                         std::string position_initiatization_method,
-                         std::string position_initiatization_level) {
+                         const std::string& position_initiatization_method,
+                         const std::string& position_initiatization_level) {
 
   // Check that the drift velocity is below the speed of light
   const double v = drift_velocity[0] * drift_velocity[0] + drift_velocity[1] * drift_velocity[1] +

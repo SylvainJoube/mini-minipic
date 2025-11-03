@@ -13,6 +13,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Operators.hpp"
 #include "Params.hpp"
 #include "Particles.hpp"
 
@@ -46,12 +47,12 @@ void initialize(Params &params) {
 //! \param[in] max - max value for each axis
 //! \param[in] data pointer to the raw data
 // _____________________________________________________________________
-void output_binary_structured_grid(std::string file_name,
-                                   std::string projected_parameter,
-                                   std::vector<std::string> axis,
-                                   std::vector<int> n_cells,
-                                   std::vector<double> min,
-                                   std::vector<double> max,
+void output_binary_structured_grid(const std::string& file_name,
+                                   const std::string& projected_parameter,
+                                   const std::vector<std::string>& axis,
+                                   const std::vector<std::size_t>& n_cells,
+                                   const std::vector<double>& min,
+                                   const std::vector<double>& max,
                                    double *__restrict__ data) {
 
   const unsigned int dim = axis.size();
@@ -75,7 +76,7 @@ void output_binary_structured_grid(std::string file_name,
     binary_file.write((char *)&axis_short_name, sizeof(char) * 8);
     binary_file.write((char *)&min[idim], sizeof(double));
     binary_file.write((char *)&max[idim], sizeof(double));
-    binary_file.write((char *)&n_cells[idim], sizeof(int));
+    binary_file.write((char *)&n_cells[idim], sizeof(std::size_t));
 
     data_size *= n_cells[idim];
   }
@@ -97,12 +98,12 @@ void output_binary_structured_grid(std::string file_name,
 //! \param[in] min - min value for each axis
 //! \param[in] max - max value for each axis
 // _____________________________________________________________________
-void output_vtk_structured_grid(std::string file_name,
-                                std::string projected_parameter,
-                                std::vector<std::string> axis,
-                                std::vector<int> n_cells,
-                                std::vector<double> min,
-                                std::vector<double> delta,
+void output_vtk_structured_grid(const std::string& file_name,
+                                const std::string& projected_parameter,
+                                const std::vector<std::string>& axis,
+                                const std::vector<std::size_t>& n_cells,
+                                const std::vector<double>& min,
+                                const std::vector<double>& delta,
                                 double *__restrict__ data) {
 
   const unsigned int dim = axis.size();
@@ -173,14 +174,14 @@ void output_vtk_structured_grid(std::string file_name,
 //! \param[in] format - (optional argument) - determine the output format, can
 //! be `binary` (default) or `vtk`
 // _____________________________________________________________________
-void particle_binning(std::string diag_name,
+void particle_binning(std::string& diag_name,
                       Params &params,
-                      Particles<mini_float> &particles,
+                      Particles &particles,
                       std::string projected_parameter,
-                      std::vector<std::string> axis,
-                      std::vector<int> n_cells,
-                      std::vector<double> min_in,
-                      std::vector<double> max_in,
+                      const std::vector<std::string>& axis,
+                      const std::vector<std::size_t>& n_cells,
+                      const std::vector<double>& min_in,
+                      const std::vector<double>& max_in,
                       int is,
                       int it,
                       std::string format = "binary",
@@ -255,7 +256,7 @@ void particle_binning(std::string diag_name,
         const unsigned int n_particles = particles.size();
         for (unsigned int ip = 0; ip < n_particles; ip++) {
 
-          mini_float value = 0.0;
+          double value = 0.0;
 
           if (axis_code[idim] == 0) {
             value = sqrt(1 +
@@ -305,7 +306,7 @@ void particle_binning(std::string diag_name,
     // Compute data
     for (unsigned int ip = 0; ip < n_particles; ip++) {
 
-      mini_float value[3];
+      double value[3];
       bool inside_diag_data = true;
 
       for (unsigned int idim = 0; idim < dim; ++idim) {
@@ -429,14 +430,21 @@ void fields(Params &params, ElectroMagn &em, unsigned int it, std::string format
 
   char buffer[64];
 
-  std::vector<Field<mini_float> *> field_list =
+  std::vector<ElectroMagn::hostview_t *> field_list =
+    {&em.Ex_h_m, &em.Ey_h_m, &em.Ez_h_m, &em.Bx_h_m, &em.By_h_m, &em.Bz_h_m};
+
+  // Needed because the mirrored view have "_mirror" appended to their name
+  std::vector<ElectroMagn::view_t *> device_field_list =
     {&em.Ex_m, &em.Ey_m, &em.Ez_m, &em.Bx_m, &em.By_m, &em.Bz_m};
+
 
   for (size_t ifield = 0; ifield < field_list.size(); ++ifield) {
 
-    const int nx = field_list[ifield]->nx();
-    const int ny = field_list[ifield]->ny();
-    const int nz = field_list[ifield]->nz();
+    const int nx = field_list[ifield]->extent(0);
+    const int ny = field_list[ifield]->extent(1);
+    const int nz = field_list[ifield]->extent(2);
+
+    const char* field_name = device_field_list[ifield]->label().c_str();
 
     double *tmp_grid = new double[field_list[ifield]->size()];
 
@@ -444,21 +452,21 @@ void fields(Params &params, ElectroMagn &em, unsigned int it, std::string format
       for (int iy = 0; iy < ny; ++iy) {
         for (int iz = 0; iz < nz; ++iz) {
           int i       = ix * ny * nz + iy * nz + iz;
-          tmp_grid[i] = static_cast<double>(field_list[ifield]->operator()(ix, iy, iz));
+          tmp_grid[i] = static_cast<double>((*field_list[ifield])(ix, iy, iz));
         }
       }
     }
 
     // Binary format
     if (format == "binary" or format == "bin") {
-      snprintf(buffer, 64, template_string.c_str(), field_list[ifield]->name_m.c_str(), it);
+      snprintf(buffer, 64, template_string.c_str(), field_name, it);
       std::string file_name(params.output_directory + "/" + buffer);
 
       output_binary_structured_grid(
         file_name,
-        field_list[ifield]->name_m,
+        field_name,
         {"x", "y", "z"},
-        {field_list[ifield]->nx_m, field_list[ifield]->ny_m, field_list[ifield]->nz_m},
+        {field_list[ifield]->extent(0), field_list[ifield]->extent(1), field_list[ifield]->extent(2)},
         {params.inf_x, params.inf_y, params.inf_z},
         {params.sup_x, params.sup_y, params.sup_z},
         tmp_grid);
@@ -466,14 +474,14 @@ void fields(Params &params, ElectroMagn &em, unsigned int it, std::string format
       // Old style vtk format
     } else if (format == "vtk") {
 
-      snprintf(buffer, 64, template_string.c_str(), field_list[ifield]->name_m.c_str(), it);
+      snprintf(buffer, 64, template_string.c_str(), field_name, it);
       std::string file_name(params.output_directory + "/" + buffer);
 
       output_vtk_structured_grid(
         file_name,
-        field_list[ifield]->name_m.c_str(),
+        field_name,
         {"x", "y", "z"},
-        {field_list[ifield]->nx_m, field_list[ifield]->ny_m, field_list[ifield]->nz_m},
+        {field_list[ifield]->extent(0), field_list[ifield]->extent(1), field_list[ifield]->extent(2)},
         {params.inf_x, params.inf_y, params.inf_z},
         {params.dx, params.dy, params.dz},
         tmp_grid);
@@ -496,12 +504,12 @@ void fields(Params &params, ElectroMagn &em, unsigned int it, std::string format
 //! \param[in] format - output format, can be "binary" (default) or "vtk". This
 //! defines the file extension, respectively `.bin` or `.vtk`
 // _____________________________________________________________________
-void particle_cloud(std::string diag_name,
+void particle_cloud(const std::string& diag_name,
                     Params &params,
-                    Particles<mini_float> &particles,
+                    Particles &particles,
                     int is,
                     int it,
-                    std::string format = "binary") {
+                    const std::string& format = "binary") {
 
   unsigned int number_of_particles = particles.size();
 
@@ -605,7 +613,7 @@ void particle_cloud(std::string diag_name,
 
       for (unsigned int ip = 0; ip < particles.size(); ++ip) {
 
-        const mini_float gamma =
+        const double gamma =
           1 /
           sqrt(
             1. +
@@ -648,12 +656,12 @@ void particle_cloud(std::string diag_name,
 //! \param[in] is - species
 //! \param[in] it - iteration
 // _____________________________________________________________________
-void scalars(Params &params, Particles<mini_float> &particles, unsigned int is, unsigned int it) {
+void scalars(Params &params, Particles &particles, unsigned int is, unsigned int it) {
 
   // Particle scalars _________________________________________
 
   unsigned int number_of_particles  = 0;
-  mini_float species_kinetic_energy = 0;
+  double species_kinetic_energy = 0;
 
     species_kinetic_energy += particles.get_kinetic_energy(minipic::device);
     number_of_particles += particles.size();
@@ -711,17 +719,17 @@ void scalars(Params &params, ElectroMagn &em, unsigned int it) {
 
   // compute Field scalars _________________________________________
 
-  mini_float Ex_energy = 0.5 * em.Ex_m.sum(2, minipic::device) * params.cell_volume;
-  mini_float Ey_energy = 0.5 * em.Ey_m.sum(2, minipic::device) * params.cell_volume;
-  mini_float Ez_energy = 0.5 * em.Ez_m.sum(2, minipic::device) * params.cell_volume;
+  double Ex_energy = 0.5 * operators::sum_power(em.Ex_m, 2) * params.cell_volume;
+  double Ey_energy = 0.5 * operators::sum_power(em.Ey_m, 2) * params.cell_volume;
+  double Ez_energy = 0.5 * operators::sum_power(em.Ez_m, 2) * params.cell_volume;
 
-  mini_float Bx_energy = 0.5 * em.Bx_m.sum(2, minipic::device) * params.cell_volume;
-  mini_float By_energy = 0.5 * em.By_m.sum(2, minipic::device) * params.cell_volume;
-  mini_float Bz_energy = 0.5 * em.Bz_m.sum(2, minipic::device) * params.cell_volume;
+  double Bx_energy = 0.5 * operators::sum_power(em.Bx_m, 2) * params.cell_volume;
+  double By_energy = 0.5 * operators::sum_power(em.By_m, 2) * params.cell_volume;
+  double Bz_energy = 0.5 * operators::sum_power(em.Bz_m, 2) * params.cell_volume;
 
-  mini_float Jx_energy = 0.5 * em.Jx_m.sum(2, minipic::device) * params.cell_volume;
-  mini_float Jy_energy = 0.5 * em.Jy_m.sum(2, minipic::device) * params.cell_volume;
-  mini_float Jz_energy = 0.5 * em.Jz_m.sum(2, minipic::device) * params.cell_volume;
+  double Jx_energy = 0.5 * operators::sum_power(em.Jx_m, 2) * params.cell_volume;
+  double Jy_energy = 0.5 * operators::sum_power(em.Jy_m, 2) * params.cell_volume;
+  double Jz_energy = 0.5 * operators::sum_power(em.Jz_m, 2) * params.cell_volume;
 
   // #endif
 

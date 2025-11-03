@@ -32,7 +32,7 @@ struct ParticleBinningProperties {
   //! vector of axis names
   std::vector<std::string> axis_;
   //! Number of cells for each axis
-  std::vector<int> n_cells_;
+  std::vector<std::size_t> n_cells_;
   //! min values for each axis
   std::vector<double> min_;
   //! max values for each axis
@@ -45,15 +45,15 @@ struct ParticleBinningProperties {
   std::string format_;
 
   //! Constructor
-  ParticleBinningProperties(std::string name,
-                            std::string projected_parameter,
-                            std::vector<std::string> axis,
-                            std::vector<int> n_cells,
-                            std::vector<double> min,
-                            std::vector<double> max,
-                            std::vector<int> species_indexes,
+  ParticleBinningProperties(const std::string& name,
+                            const std::string& projected_parameter,
+                            const std::vector<std::string>& axis,
+                            const std::vector<std::size_t>& n_cells,
+                            const std::vector<double>& min,
+                            const std::vector<double>& max,
+                            const std::vector<int>& species_indexes,
                             int period,
-                            std::string format)
+                            const std::string& format)
     : name_(name), projected_parameter_(projected_parameter), axis_(axis), n_cells_(n_cells),
       min_(min), max_(max), species_indexes_(species_indexes), period_(period), format_(format) {};
 };
@@ -96,12 +96,8 @@ public:
   double inf_x, inf_y, inf_z;
   double sup_x, sup_y, sup_z;
 
-  //! Domain decomposition
-  int n_subdomains;
-  int nx_patch, ny_patch, nz_patch;
-
   //! Input computed
-  int nx_cells, ny_cells, nz_cells;
+  std::size_t nx_cells, ny_cells, nz_cells;
   double Lx, Ly, Lz;
   double dx, dy, dz;
   double inv_dx, inv_dy, inv_dz;
@@ -110,12 +106,6 @@ public:
 
   int nx_p, ny_p, nz_p;
   int nx_d, ny_d, nz_d;
-
-  //! Number of primal cells per patch
-  int nx_p_by_patch, ny_p_by_patch, nz_p_by_patch;
-
-  // Number of dual cells per patch
-  int nx_d_by_patch, ny_d_by_patch, nz_d_by_patch;
 
   //! String to store the name of the boundary condition
   std::string boundary_condition;
@@ -135,7 +125,7 @@ public:
   //! Time total, computed
   double simulation_time;
   //! Number of iteration, computed
-  unsigned int n_it;
+  std::size_t n_it;
   //! CFL
   double dt_cfl;
 
@@ -145,7 +135,7 @@ public:
   //! Name of the species
   std::vector<std::string> species_names_;
   //! Particle per cell for each species at init
-  std::vector<int> ppc_;
+  std::vector<std::size_t> ppc_;
   //! Normalized density, temperature, mass, charge for each species at init
   std::vector<double> temp_, mass_, charge_;
   //! Density profile for each species at init
@@ -159,7 +149,7 @@ public:
   std::vector<std::string> position_initialization_level_;
 
   //! Number of particles total for each species at init, computed
-  std::vector<int> n_particles_by_species;
+  std::vector<std::size_t> n_particles_by_species;
   //! Number of particles at init, computed
   int n_particles;
 
@@ -371,7 +361,7 @@ public:
     // get number of digit for the number of iterations
     // Used for diagnostics names
     max_it_digits = 0;
-    int n_it_tmp  = n_it;
+    std::size_t n_it_tmp  = n_it;
     while (n_it_tmp > 0) {
       n_it_tmp /= 10;
       max_it_digits++;
@@ -426,15 +416,15 @@ public:
   //! Number of particles per cell of the species \param position_initiatization Method to use for
   //! position init
   // _________________________________________________________________________________________________
-  void add_species(std::string name,
+  void add_species(const std::string& name,
                    double mass,
                    double charge,
                    double temp,
                    std::function<double(double, double, double)> density_profile,
-                   std::vector<double> drift_velocity,
+                   const std::vector<double>& drift_velocity,
                    double ppc,
-                   std::string position_initiatization,
-                   std::string position_initialization_level);
+                   const std::string& position_initiatization,
+                   const std::string& position_initialization_level);
 
   // _____________________________________________________
   //
@@ -454,15 +444,15 @@ public:
   //! \param[in] format - (optional argument) - determine the output format, can
   //! be `binary` (default) or `vtk`
   // _____________________________________________________
-  void add_particle_binning(std::string diag_name,
-                            std::string projected_parameter,
-                            std::vector<std::string> axis,
-                            std::vector<int> n_cells,
-                            std::vector<double> min,
-                            std::vector<double> max,
-                            std::vector<int> species_indexes,
+  void add_particle_binning(const std::string& diag_name,
+                            const std::string& projected_parameter,
+                            const std::vector<std::string>& axis,
+                            const std::vector<std::size_t>& n_cells,
+                            const std::vector<double>& min,
+                            const std::vector<double>& max,
+                            const std::vector<int>& species_indexes,
                             int period,
-                            std::string format = "binary");
+                            const std::string& format = "binary");
 
   // _____________________________________________________
   //

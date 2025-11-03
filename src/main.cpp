@@ -146,7 +146,6 @@ int main(int argc, char *argv[]) {
     timers.print();
 
     timers.save(params, params.n_it + 1);
-
   }
 
   Kokkos::finalize();

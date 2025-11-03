@@ -20,19 +20,12 @@ void setup(Params &params) {
   params.sup_y = 1.;
   params.sup_z = 1.;
 
-  // Decomp
-  params.n_subdomains = 1;
   // Cells per patch per direction
   params.nx_cells = 384;
   params.ny_cells = 64;
   params.nz_cells = 64;
 
   // Time
-
-  // const double dx = (params.sup_x - params.inf_x) / (params.nx_cells * params.nx_patch);
-  // const double dy = (params.sup_y - params.inf_y) / (params.ny_cells * params.ny_patch);
-  // const double dz = (params.sup_z - params.inf_z) / (params.nz_cells * params.nz_patch);
-
   params.dt = 0.95;
 
   params.simulation_time = 600 * params.dt;

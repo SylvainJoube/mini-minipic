@@ -22,9 +22,6 @@ void setup(Params &params) {
   params.sup_y = 1.;
   params.sup_z = 1.;
 
-  // Decomp
-  params.n_subdomains = 1;
-
   params.nx_cells = 32;
   params.ny_cells = 32;
   params.nz_cells = 32;
@@ -40,7 +37,7 @@ void setup(Params &params) {
   // Species
 
   // custom density profile
-  auto profile = [](double x, double y, double z) -> double {
+  auto profile = [](double, double, double) -> double {
     // if ((x > 0.2) && (x < 0.8)) {
     return 1e-5;
     // } else {

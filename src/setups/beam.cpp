@@ -31,9 +31,6 @@ void setup(Params &params) {
   params.sup_y = 32 * dy;
   params.sup_z = 32 * dz;
 
-  // Decomp
-  params.n_subdomains = 1;
-
   params.nx_cells = static_cast<int>((params.sup_x - params.inf_x) / dx);
   params.ny_cells = static_cast<int>((params.sup_y - params.inf_y) / dy);
   params.nz_cells = static_cast<int>((params.sup_z - params.inf_z) / dz);

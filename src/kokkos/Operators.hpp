@@ -11,9 +11,8 @@
 namespace operators {
 
 // Returns the sum of all elements of a View on the host
-template <class T>
-double sum_host(typename Particles<T>::hostview_t view) {
-  T res = 0.f;
+double sum_host(typename Particles::hostview_t view) {
+  double res = 0.f;
   for (size_t i=0; i < view.extent(0); ++i) {
     res += view(i);
   }
@@ -21,15 +20,52 @@ double sum_host(typename Particles<T>::hostview_t view) {
 }
 
 // Returns the sum of all elements of a View on the device
-template <class T>
-double sum_device(typename Particles<T>::view_t view) {
-  T res;
+double sum_device(typename Particles::view_t view) {
+  double res;
   Kokkos::parallel_reduce(Kokkos::RangePolicy(0, view.extent(0)),
       KOKKOS_LAMBDA(const int i, double &partial_res){
         partial_res += view(i);
       }, res);
 
   return res;
+}
+
+// ____________________________________________________________
+//
+//! \brief output the sum of data with power power
+// ____________________________________________________________
+double sum_power(ElectroMagn::view_t v, const int power) {
+  double sum = 0;
+
+  // ---> Device case
+  typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>>
+    mdrange_policy;
+  Kokkos::parallel_reduce(
+      "sum_field_on_device",
+      mdrange_policy({0, 0, 0}, {v.extent(0), v.extent(1), v.extent(2)}),
+      KOKKOS_LAMBDA(const int ix, const int iy, const int iz, double &local_sum) {
+      local_sum += Kokkos::pow(v(ix, iy, iz), power);
+      },
+      sum);
+
+  return sum;
+}
+
+double sum_power(ElectroMagn::hostview_t v, const int power) {
+  double sum = 0;
+
+  // ---> Host case
+  typedef Kokkos::MDRangePolicy<Kokkos::DefaultHostExecutionSpace, Kokkos::Rank<3>>
+    mdrange_policy;
+  Kokkos::parallel_reduce(
+      "sum_field_on_host",
+      mdrange_policy({0, 0, 0}, {v.extent(0), v.extent(1), v.extent(2)}),
+      KOKKOS_LAMBDA(const int ix, const int iy, const int iz, double &local_sum) {
+      local_sum += Kokkos::pow(v(ix, iy, iz), power);
+      },
+      sum);
+
+  return sum;
 }
 
 // ______________________________________________________________________________
@@ -39,37 +75,34 @@ double sum_device(typename Particles<T>::view_t view) {
 //! \param[in] em  global electromagnetic fields
 //! \param[in] particles  vector of particle species
 // ______________________________________________________________________________
-auto interpolate(ElectroMagn &em, std::vector<Particles<mini_float>> &particles) -> void {
-
+auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
   const auto inv_dx_m = em.inv_dx_m;
   const auto inv_dy_m = em.inv_dy_m;
   const auto inv_dz_m = em.inv_dz_m;
-
-  // em.Ex_m.print();
 
   for (size_t is = 0; is < particles.size(); is++) {
 
     const int n_particles = particles[is].size();
 
-    device_field_t Ex = em.Ex_m.data_m;
-    device_field_t Ey = em.Ey_m.data_m;
-    device_field_t Ez = em.Ez_m.data_m;
+    ElectroMagn::view_t Ex = em.Ex_m;
+    ElectroMagn::view_t Ey = em.Ey_m;
+    ElectroMagn::view_t Ez = em.Ez_m;
 
-    device_field_t Bx = em.Bx_m.data_m;
-    device_field_t By = em.By_m.data_m;
-    device_field_t Bz = em.Bz_m.data_m;
+    ElectroMagn::view_t Bx = em.Bx_m;
+    ElectroMagn::view_t By = em.By_m;
+    ElectroMagn::view_t Bz = em.Bz_m;
 
-    Particles<double>::view_t x = particles[is].x_;
-    Particles<double>::view_t y = particles[is].y_;
-    Particles<double>::view_t z = particles[is].z_;
+    Particles::view_t x = particles[is].x_;
+    Particles::view_t y = particles[is].y_;
+    Particles::view_t z = particles[is].z_;
 
-    Particles<double>::view_t Exp = particles[is].Ex_;
-    Particles<double>::view_t Eyp = particles[is].Ey_;
-    Particles<double>::view_t Ezp = particles[is].Ez_;
+    Particles::view_t Exp = particles[is].Ex_;
+    Particles::view_t Eyp = particles[is].Ey_;
+    Particles::view_t Ezp = particles[is].Ez_;
 
-    Particles<double>::view_t Bxp = particles[is].Bx_;
-    Particles<double>::view_t Byp = particles[is].By_;
-    Particles<double>::view_t Bzp = particles[is].Bz_;
+    Particles::view_t Bxp = particles[is].Bx_;
+    Particles::view_t Byp = particles[is].By_;
+    Particles::view_t Bzp = particles[is].Bz_;
 
     Kokkos::parallel_for(
       n_particles,
@@ -217,7 +250,7 @@ auto interpolate(ElectroMagn &em, std::vector<Particles<mini_float>> &particles)
 //! \param[in] particles  vector of particle species
 //! \param[in] dt time step to use for the pusher
 // ______________________________________________________________________________
-auto push(std::vector<Particles<mini_float>> &particles, double dt) -> void {
+auto push(std::vector<Particles> &particles, double dt) -> void {
 
   // For each species
   for (size_t is = 0; is < particles.size(); is++) {
@@ -225,48 +258,48 @@ auto push(std::vector<Particles<mini_float>> &particles, double dt) -> void {
     const int n_particles = particles[is].size();
 
     // q' = dt * (q/2m)
-    const mini_float qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
+    const double qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
 
     particles[is].sync(minipic::device, minipic::host);
-    Particles<double>::view_t x = particles[is].x_;
-    Particles<double>::view_t y = particles[is].y_;
-    Particles<double>::view_t z = particles[is].z_;
+    Particles::view_t x = particles[is].x_;
+    Particles::view_t y = particles[is].y_;
+    Particles::view_t z = particles[is].z_;
 
-    Particles<double>::view_t mx = particles[is].mx_;
-    Particles<double>::view_t my = particles[is].my_;
-    Particles<double>::view_t mz = particles[is].mz_;
+    Particles::view_t mx = particles[is].mx_;
+    Particles::view_t my = particles[is].my_;
+    Particles::view_t mz = particles[is].mz_;
 
-    Particles<double>::view_t Exp = particles[is].Ex_;
-    Particles<double>::view_t Eyp = particles[is].Ey_;
-    Particles<double>::view_t Ezp = particles[is].Ez_;
+    Particles::view_t Exp = particles[is].Ex_;
+    Particles::view_t Eyp = particles[is].Ey_;
+    Particles::view_t Ezp = particles[is].Ez_;
 
-    Particles<double>::view_t Bxp = particles[is].Bx_;
-    Particles<double>::view_t Byp = particles[is].By_;
-    Particles<double>::view_t Bzp = particles[is].Bz_;
+    Particles::view_t Bxp = particles[is].Bx_;
+    Particles::view_t Byp = particles[is].By_;
+    Particles::view_t Bzp = particles[is].Bz_;
 
     Kokkos::parallel_for(
       n_particles,
       KOKKOS_LAMBDA(const int ip) {
         // 1/2 E
-        mini_float px = qp * Exp(ip);
-        mini_float py = qp * Eyp(ip);
-        mini_float pz = qp * Ezp(ip);
+        double px = qp * Exp(ip);
+        double py = qp * Eyp(ip);
+        double pz = qp * Ezp(ip);
 
-        const mini_float ux = mx(ip) + px;
-        const mini_float uy = my(ip) + py;
-        const mini_float uz = mz(ip) + pz;
+        const double ux = mx(ip) + px;
+        const double uy = my(ip) + py;
+        const double uz = mz(ip) + pz;
 
         // gamma-factor
-        mini_float usq       = (ux * ux + uy * uy + uz * uz);
-        mini_float gamma     = Kokkos::sqrt(1 + usq);
-        mini_float gamma_inv = qp / gamma;
+        double usq       = (ux * ux + uy * uy + uz * uz);
+        double gamma     = Kokkos::sqrt(1 + usq);
+        double gamma_inv = qp / gamma;
 
         // B, T = Transform to rotate the particle
-        const mini_float tx  = gamma_inv * Bxp(ip);
-        const mini_float ty  = gamma_inv * Byp(ip);
-        const mini_float tz  = gamma_inv * Bzp(ip);
-        const mini_float tsq = 1. + (tx * tx + ty * ty + tz * tz);
-        mini_float tsq_inv   = 1. / tsq;
+        const double tx  = gamma_inv * Bxp(ip);
+        const double ty  = gamma_inv * Byp(ip);
+        const double tz  = gamma_inv * Bzp(ip);
+        const double tsq = 1. + (tx * tx + ty * ty + tz * tz);
+        double tsq_inv   = 1. / tsq;
 
         px += ((1.0 + tx * tx - ty * ty - tz * tz) * ux + 2.0 * (tx * ty + tz) * uy +
                2.0 * (tz * tx - ty) * uz) *
@@ -309,7 +342,7 @@ auto push(std::vector<Particles<mini_float>> &particles, double dt) -> void {
 //! \param[in] particles vector of species Particles
 //! \param[in] dt time step to use for the pusher
 // ______________________________________________________________________________
-auto push_momentum(std::vector<Particles<mini_float>> &particles, double dt) -> void {
+auto push_momentum(std::vector<Particles> &particles, double dt) -> void {
 
   // for each species
   for (size_t is = 0; is < particles.size(); is++) {
@@ -317,43 +350,43 @@ auto push_momentum(std::vector<Particles<mini_float>> &particles, double dt) -> 
     const int n_particles = particles[is].size();
 
     // q' = dt * (q/2m)
-    const mini_float qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
+    const double qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
 
-    Particles<double>::view_t mx = particles[is].mx_;
-    Particles<double>::view_t my = particles[is].my_;
-    Particles<double>::view_t mz = particles[is].mz_;
+    Particles::view_t mx = particles[is].mx_;
+    Particles::view_t my = particles[is].my_;
+    Particles::view_t mz = particles[is].mz_;
 
-    Particles<double>::view_t Exp = particles[is].Ex_;
-    Particles<double>::view_t Eyp = particles[is].Ey_;
-    Particles<double>::view_t Ezp = particles[is].Ez_;
+    Particles::view_t Exp = particles[is].Ex_;
+    Particles::view_t Eyp = particles[is].Ey_;
+    Particles::view_t Ezp = particles[is].Ez_;
 
-    Particles<double>::view_t Bxp = particles[is].Bx_;
-    Particles<double>::view_t Byp = particles[is].By_;
-    Particles<double>::view_t Bzp = particles[is].Bz_;
+    Particles::view_t Bxp = particles[is].Bx_;
+    Particles::view_t Byp = particles[is].By_;
+    Particles::view_t Bzp = particles[is].Bz_;
 
     Kokkos::parallel_for(
       n_particles,
       KOKKOS_LAMBDA(const int ip) {
         // 1/2 E
-        mini_float px = qp * Exp(ip);
-        mini_float py = qp * Eyp(ip);
-        mini_float pz = qp * Ezp(ip);
+        double px = qp * Exp(ip);
+        double py = qp * Eyp(ip);
+        double pz = qp * Ezp(ip);
 
-        const mini_float ux = mx(ip) + px;
-        const mini_float uy = my(ip) + py;
-        const mini_float uz = mz(ip) + pz;
+        const double ux = mx(ip) + px;
+        const double uy = my(ip) + py;
+        const double uz = mz(ip) + pz;
 
         // gamma-factor
-        mini_float usq       = (ux * ux + uy * uy + uz * uz);
-        mini_float gamma     = Kokkos::sqrt(1 + usq);
-        mini_float gamma_inv = qp / gamma;
+        double usq       = (ux * ux + uy * uy + uz * uz);
+        double gamma     = Kokkos::sqrt(1 + usq);
+        double gamma_inv = qp / gamma;
 
         // B, T = Transform to rotate the particle
-        const mini_float tx  = gamma_inv * Bxp(ip);
-        const mini_float ty  = gamma_inv * Byp(ip);
-        const mini_float tz  = gamma_inv * Bzp(ip);
-        const mini_float tsq = 1. + (tx * tx + ty * ty + tz * tz);
-        mini_float tsq_inv   = 1. / tsq;
+        const double tx  = gamma_inv * Bxp(ip);
+        const double ty  = gamma_inv * Byp(ip);
+        const double tz  = gamma_inv * Bzp(ip);
+        const double tsq = 1. + (tx * tx + ty * ty + tz * tz);
+        double tsq_inv   = 1. / tsq;
 
         px += ((1.0 + tx * tx - ty * ty - tz * tz) * ux + 2.0 * (tx * ty + tz) * uy +
                2.0 * (tz * tx - ty) * uz) *
@@ -390,91 +423,90 @@ auto push_momentum(std::vector<Particles<mini_float>> &particles, double dt) -> 
 //! or reflect the particles which leave the domain
 //
 //! \param[in] Params & params - constant global simulation parameters
-//! \param[in] std::vector<Particles<mini_float>> & particles - vector of species Particles
+//! \param[in] std::vector<Particles> & particles - vector of species Particles
 // _____________________________________________________________________
-auto pushBC(Params &params, std::vector<Particles<mini_float>> &particles) -> void {
+auto pushBC(Params &params, std::vector<Particles> &particles) -> void {
+  const double inf_global[3] = {params.inf_x, params.inf_y, params.inf_z};
+  const double sup_global[3] = {params.sup_x, params.sup_y, params.sup_z};
 
-    const mini_float inf_global[3] = {params.inf_x, params.inf_y, params.inf_z};
-    const mini_float sup_global[3] = {params.sup_x, params.sup_y, params.sup_z};
+  // Periodic conditions
+  if (params.boundary_condition_code == 1) {
 
-    // Periodic conditions
-    if (params.boundary_condition_code == 1) {
+    const double length[3] = {params.Lx, params.Ly, params.Lz};
 
-      const mini_float length[3] = {params.Lx, params.Ly, params.Lz};
+    for (size_t is = 0; is < particles.size(); is++) {
 
-      for (size_t is = 0; is < particles.size(); is++) {
+      unsigned int n_particles = particles[is].size();
 
-        unsigned int n_particles = particles[is].size();
+      Particles::view_t x = particles[is].x_;
+      Particles::view_t y = particles[is].y_;
+      Particles::view_t z = particles[is].z_;
 
-        Particles<double>::view_t x = particles[is].x_;
-        Particles<double>::view_t y = particles[is].y_;
-        Particles<double>::view_t z = particles[is].z_;
-
-        Kokkos::parallel_for(
+      Kokkos::parallel_for(
           n_particles,
           KOKKOS_LAMBDA(const int part) {
-            mini_float *pos[3] = {&x(part), &y(part), &z(part)};
+          double *pos[3] = {&x(part), &y(part), &z(part)};
 
-            for (unsigned int d = 0; d < 3; d++) {
-              if (*pos[d] >= sup_global[d]) {
+          for (unsigned int d = 0; d < 3; d++) {
+          if (*pos[d] >= sup_global[d]) {
 
-                *pos[d] -= length[d];
+          *pos[d] -= length[d];
 
-              } else if (*pos[d] < inf_global[d]) {
+          } else if (*pos[d] < inf_global[d]) {
 
-                *pos[d] += length[d];
-              }
-            }
+          *pos[d] += length[d];
+          }
+          }
           } // End loop on particles
 
-        );
+          );
 
-        Kokkos::fence();
+      Kokkos::fence();
 
-      } // End loop on species
+    } // End loop on species
 
-      // Reflective conditions
-    } else if (params.boundary_condition_code == 2) {
-      for (size_t is = 0; is < particles.size(); is++) {
+    // Reflective conditions
+  } else if (params.boundary_condition_code == 2) {
+    for (size_t is = 0; is < particles.size(); is++) {
 
-        unsigned int n_particles = particles[is].size();
+      unsigned int n_particles = particles[is].size();
 
-        Particles<double>::view_t x = particles[is].x_;
-        Particles<double>::view_t y = particles[is].y_;
-        Particles<double>::view_t z = particles[is].z_;
+      Particles::view_t x = particles[is].x_;
+      Particles::view_t y = particles[is].y_;
+      Particles::view_t z = particles[is].z_;
 
-        Particles<double>::view_t mx = particles[is].mx_;
-        Particles<double>::view_t my = particles[is].my_;
-        Particles<double>::view_t mz = particles[is].mz_;
+      Particles::view_t mx = particles[is].mx_;
+      Particles::view_t my = particles[is].my_;
+      Particles::view_t mz = particles[is].mz_;
 
-        Kokkos::parallel_for(
+      Kokkos::parallel_for(
           n_particles,
           KOKKOS_LAMBDA(const int part) {
-            mini_float *pos[3] = {&x(part), &y(part), &z(part)};
+          double *pos[3] = {&x(part), &y(part), &z(part)};
 
-            mini_float *momentum[3] = {&mx(part), &my(part), &mz(part)};
+          double *momentum[3] = {&mx(part), &my(part), &mz(part)};
 
-            for (int d = 0; d < 3; d++) {
+          for (int d = 0; d < 3; d++) {
 
-              if (*pos[d] >= sup_global[d]) {
+          if (*pos[d] >= sup_global[d]) {
 
-                *pos[d]      = 2 * sup_global[d] - *pos[d];
-                *momentum[d] = -*momentum[d];
+          *pos[d]      = 2 * sup_global[d] - *pos[d];
+          *momentum[d] = -*momentum[d];
 
-              } else if (*pos[d] < inf_global[d]) {
+          } else if (*pos[d] < inf_global[d]) {
 
-                *pos[d]      = 2 * inf_global[d] - *pos[d];
-                *momentum[d] = -*momentum[d];
-              }
-            }
+          *pos[d]      = 2 * inf_global[d] - *pos[d];
+          *momentum[d] = -*momentum[d];
+          }
+          }
           } // End loop on particles
 
-        );
+      );
 
-        Kokkos::fence();
+      Kokkos::fence();
 
-      } // End loop on species
-    } // if type of conditions
+    } // End loop on species
+  } // if type of conditions
 }
 
 // _______________________________________________________________________
@@ -484,11 +516,10 @@ auto pushBC(Params &params, std::vector<Particles<mini_float>> &particles) -> vo
 //! \param[in] em electromagnetic fields
 //! \param[in] particles vector of species Particles
 // _______________________________________________________________________
-void project(Params &params, ElectroMagn &em, std::vector<Particles<mini_float>> &particles) {
-
-  device_field_t Jx_device = em.Jx_m.data_m;
-  device_field_t Jy_device = em.Jy_m.data_m;
-  device_field_t Jz_device = em.Jz_m.data_m;
+void project(Params &params, ElectroMagn &em, std::vector<Particles> &particles) {
+  ElectroMagn::view_t Jx_device = em.Jx_m;
+  ElectroMagn::view_t Jy_device = em.Jy_m;
+  ElectroMagn::view_t Jz_device = em.Jz_m;
 
 #if defined(__MINIPIC_KOKKOS_SCATTERVIEW__)
   // Use ScatterView
@@ -522,17 +553,16 @@ void project(Params &params, ElectroMagn &em, std::vector<Particles<mini_float>>
 
     const int n_particles            = particles[is].size();
     const double inv_cell_volume_x_q = params.inv_cell_volume * particles[is].charge_m;
-    // double m       = particles_m[is].mass_m;
 
-    Particles<double>::view_t w = particles[is].weight_;
+    Particles::view_t w = particles[is].weight_;
 
-    Particles<double>::view_t x = particles[is].x_;
-    Particles<double>::view_t y = particles[is].y_;
-    Particles<double>::view_t z = particles[is].z_;
+    Particles::view_t x = particles[is].x_;
+    Particles::view_t y = particles[is].y_;
+    Particles::view_t z = particles[is].z_;
 
-    Particles<double>::view_t mx = particles[is].mx_;
-    Particles<double>::view_t my = particles[is].my_;
-    Particles<double>::view_t mz = particles[is].mz_;
+    Particles::view_t mx = particles[is].mx_;
+    Particles::view_t my = particles[is].my_;
+    Particles::view_t mz = particles[is].mz_;
 
     Kokkos::parallel_for(
       n_particles,
@@ -569,14 +599,14 @@ void project(Params &params, ElectroMagn &em, std::vector<Particles<mini_float>>
         const double poszn = (z(part) - 0.5 * dt * vz) * inv_dz + 1;
 
         // Compute indexes in primal grid
-        const int ixp = (int)(floor(posxn)); //- i_patch_topology_m * nx_cells_m;
-        const int iyp = (int)(floor(posyn)); //- j_patch_topology_m * ny_cells_m;
-        const int izp = (int)(floor(poszn)); //- k_patch_topology_m * nz_cells_m;
+        const int ixp = (int)(floor(posxn));
+        const int iyp = (int)(floor(posyn));
+        const int izp = (int)(floor(poszn));
 
         // Compute indexes in dual grid
-        const int ixd = (int)floor(posxn - 0.5); //- i_patch_topology_m * nx_cells_m;
-        const int iyd = (int)floor(posyn - 0.5); //- j_patch_topology_m * ny_cells_m;
-        const int izd = (int)floor(poszn - 0.5); //- k_patch_topology_m * nz_cells_m;
+        const int ixd = (int)floor(posxn - 0.5);
+        const int iyd = (int)floor(posyn - 0.5);
+        const int izd = (int)floor(poszn - 0.5);
 
         // Projection particle on currant field
         // Compute interpolation coeff, p = primal, d = dual
@@ -640,7 +670,6 @@ void project(Params &params, ElectroMagn &em, std::vector<Particles<mini_float>>
 //! \param params global parameters
 // _______________________________________________________
 auto solve_maxwell(const Params &params, ElectroMagn &em) -> void {
-
   const double dt         = params.dt;
   const double dt_over_dx = params.dt * params.inv_dx;
   const double dt_over_dy = params.dt * params.inv_dy;
@@ -649,17 +678,17 @@ auto solve_maxwell(const Params &params, ElectroMagn &em) -> void {
   /////     Solve Maxwell Ampere (E)
   // Electric field Ex (d,p,p)
 
-  device_field_t Jx = em.Jx_m.data_m;
-  device_field_t Jy = em.Jy_m.data_m;
-  device_field_t Jz = em.Jz_m.data_m;
+  ElectroMagn::view_t Jx = em.Jx_m;
+  ElectroMagn::view_t Jy = em.Jy_m;
+  ElectroMagn::view_t Jz = em.Jz_m;
 
-  device_field_t Ex = em.Ex_m.data_m;
-  device_field_t Ey = em.Ey_m.data_m;
-  device_field_t Ez = em.Ez_m.data_m;
+  ElectroMagn::view_t Ex = em.Ex_m;
+  ElectroMagn::view_t Ey = em.Ey_m;
+  ElectroMagn::view_t Ez = em.Ez_m;
 
-  device_field_t Bx = em.Bx_m.data_m;
-  device_field_t By = em.By_m.data_m;
-  device_field_t Bz = em.Bz_m.data_m;
+  ElectroMagn::view_t Bx = em.Bx_m;
+  ElectroMagn::view_t By = em.By_m;
+  ElectroMagn::view_t Bz = em.Bz_m;
 
   typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>> mdrange_policy;
 
@@ -735,21 +764,21 @@ void currentBC(Params &params, ElectroMagn &em) {
 
   if (params.boundary_condition == "periodic") {
 
-    device_field_t Jx = em.Jx_m.data_m;
-    device_field_t Jy = em.Jy_m.data_m;
-    device_field_t Jz = em.Jz_m.data_m;
+    ElectroMagn::view_t Jx = em.Jx_m;
+    ElectroMagn::view_t Jy = em.Jy_m;
+    ElectroMagn::view_t Jz = em.Jz_m;
 
-    const auto nx_Jx = em.Jx_m.nx();
-    const auto ny_Jx = em.Jx_m.ny();
-    const auto nz_Jx = em.Jx_m.nz();
+    const auto nx_Jx = em.Jx_m.extent(0);
+    const auto ny_Jx = em.Jx_m.extent(1);
+    const auto nz_Jx = em.Jx_m.extent(2);
 
-    const auto nx_Jy = em.Jy_m.nx();
-    const auto ny_Jy = em.Jy_m.ny();
-    const auto nz_Jy = em.Jy_m.nz();
+    const auto nx_Jy = em.Jy_m.extent(0);
+    const auto ny_Jy = em.Jy_m.extent(1);
+    const auto nz_Jy = em.Jy_m.extent(2);
 
-    const auto nx_Jz = em.Jz_m.nx();
-    const auto ny_Jz = em.Jz_m.ny();
-    const auto nz_Jz = em.Jz_m.nz();
+    const auto nx_Jz = em.Jz_m.extent(0);
+    const auto ny_Jz = em.Jz_m.extent(1);
+    const auto nz_Jz = em.Jz_m.extent(2);
 
     typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<2>> mdrange_policy;
 
@@ -868,21 +897,21 @@ auto solveBC(Params &params, ElectroMagn &em) -> void {
 
   if (params.boundary_condition == "periodic") {
 
-    device_field_t Bx = em.Bx_m.data_m;
-    device_field_t By = em.By_m.data_m;
-    device_field_t Bz = em.Bz_m.data_m;
+    ElectroMagn::view_t Bx = em.Bx_m;
+    ElectroMagn::view_t By = em.By_m;
+    ElectroMagn::view_t Bz = em.Bz_m;
 
-    const auto nx_Bx = em.Bx_m.nx();
-    const auto ny_Bx = em.Bx_m.ny();
-    const auto nz_Bx = em.Bx_m.nz();
+    const auto nx_Bx = em.Bx_m.extent(0);
+    const auto ny_Bx = em.Bx_m.extent(1);
+    const auto nz_Bx = em.Bx_m.extent(2);
 
-    const auto nx_By = em.By_m.nx();
-    const auto ny_By = em.By_m.ny();
-    const auto nz_By = em.By_m.nz();
+    const auto nx_By = em.By_m.extent(0);
+    const auto ny_By = em.By_m.extent(1);
+    const auto nz_By = em.By_m.extent(2);
 
-    const auto nx_Bz = em.Bz_m.nx();
-    const auto ny_Bz = em.Bz_m.ny();
-    const auto nz_Bz = em.Bz_m.nz();
+    const auto nx_Bz = em.Bz_m.extent(0);
+    const auto ny_Bz = em.Bz_m.extent(1);
+    const auto nz_Bz = em.Bz_m.extent(2);
 
     // X dim
     // By (d,p,d)
@@ -957,21 +986,21 @@ auto solveBC(Params &params, ElectroMagn &em) -> void {
 
   } else if (params.boundary_condition == "reflective") {
 
-    device_field_t Bx = em.Bx_m.data_m;
-    device_field_t By = em.By_m.data_m;
-    device_field_t Bz = em.Bz_m.data_m;
+    ElectroMagn::view_t Bx = em.Bx_m;
+    ElectroMagn::view_t By = em.By_m;
+    ElectroMagn::view_t Bz = em.Bz_m;
 
-    const auto nx_Bx = em.Bx_m.nx();
-    const auto ny_Bx = em.Bx_m.ny();
-    const auto nz_Bx = em.Bx_m.nz();
+    const auto nx_Bx = em.Bx_m.extent(0);
+    const auto ny_Bx = em.Bx_m.extent(1);
+    const auto nz_Bx = em.Bx_m.extent(2);
 
-    const auto nx_By = em.By_m.nx();
-    const auto ny_By = em.By_m.ny();
-    const auto nz_By = em.By_m.nz();
+    const auto nx_By = em.By_m.extent(0);
+    const auto ny_By = em.By_m.extent(1);
+    const auto nz_By = em.By_m.extent(2);
 
-    const auto nx_Bz = em.Bz_m.nx();
-    const auto ny_Bz = em.Bz_m.ny();
-    const auto nz_Bz = em.Bz_m.nz();
+    const auto nx_Bz = em.Bz_m.extent(0);
+    const auto ny_Bz = em.Bz_m.extent(1);
+    const auto nz_Bz = em.Bz_m.extent(2);
 
     // X dim
     // By (d,p,d)
@@ -1055,26 +1084,26 @@ auto antenna(Params &params,
              double x,
              double t) -> void {
 
-  em.Jz_m.sync(minipic::device, minipic::host);
+  em.sync(minipic::device, minipic::host);
 
-  Field<mini_float> *J = &em.Jz_m;
+  ElectroMagn::hostview_t *J = &em.Jz_h_m;
 
-  const int ix = Kokkos::floor((x - params.inf_x - J->dual_x_m * 0.5 * params.dx) / params.dx);
+  const int ix = Kokkos::floor((x - params.inf_x - em.J_dual_zx_m * 0.5 * params.dx) / params.dx);
 
   const double yfs = 0.5 * params.Ly + params.inf_y;
   const double zfs = 0.5 * params.Lz + params.inf_z;
 
-  for (int iy = 0; iy < J->ny_m; ++iy) {
-    for (int iz = 0; iz < J->nz_m; ++iz) {
+  for (std::size_t iy = 0; iy < J->extent(1); ++iy) {
+    for (std::size_t iz = 0; iz < J->extent(2); ++iz) {
 
-      const double y = (iy - J->dual_y_m * 0.5) * params.dy + params.inf_y - yfs;
-      const double z = (iz - J->dual_z_m * 0.5) * params.dz + params.inf_z - zfs;
+      const double y = (iy - em.J_dual_zy_m * 0.5) * params.dy + params.inf_y - yfs;
+      const double z = (iz - em.J_dual_zz_m * 0.5) * params.dz + params.inf_z - zfs;
 
       (*J)(ix, iy, iz) = profile(y, z, t);
     }
   }
 
-  em.Jz_m.sync(minipic::host, minipic::device);
+  em.sync(minipic::host, minipic::device);
 
 } // end antenna
 

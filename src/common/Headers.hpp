@@ -8,13 +8,6 @@
 #ifndef HEADERS_H
 #define HEADERS_H
 
-// #include "Params.hpp"
-
-// _____________________________________________________________________
-//
-// Backends
-// _____________________________________________________________________
-
 // ____________________________________________________________
 // Kokkos
 
@@ -25,12 +18,6 @@
 
 #define INLINE inline __attribute__((always_inline))
 #define DEVICE_INLINE KOKKOS_INLINE_FUNCTION
-
-// _____________________________________________________________________
-// Types
-
-// using mini_float = double;
-#define mini_float double
 
 // _____________________________________________________________________
 // Space class
@@ -55,8 +42,5 @@ template <typename T> inline void atomicAdd(T *address, T value) {
 }
 
 } // namespace minipic
-
-// onHost  on_host;
-// onDevice on_device;
 
 #endif

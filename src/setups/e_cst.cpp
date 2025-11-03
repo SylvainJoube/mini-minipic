@@ -22,9 +22,6 @@ void setup(Params &params) {
   params.sup_y = 1.;
   params.sup_z = 1.;
 
-  // Decomp
-  params.n_subdomains = 1;
-
   // Number of patches
   params.nx_patch = 4;
   params.ny_patch = 4;

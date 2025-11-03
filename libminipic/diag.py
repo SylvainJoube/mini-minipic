@@ -51,8 +51,8 @@ def read_1d_diag(path):
     k += 8
     x_max = struct.unpack("d", content[k : k + 8])[0]
     k += 8
-    x_ncells = struct.unpack("i", content[k : k + 4])[0]
-    k += 4
+    x_ncells = struct.unpack("Q", content[k : k + 8])[0]
+    k += 8
     dx = (x_max - x_min) / x_ncells
     x_data = np.linspace(x_min + 0.5 * dx, x_max - 0.5 * dx, x_ncells)
 
@@ -94,8 +94,8 @@ def read_3d_diag(path):
     k += 8
     x_max = struct.unpack("d", content[k : k + 8])[0]
     k += 8
-    x_ncells = struct.unpack("i", content[k : k + 4])[0]
-    k += 4
+    x_ncells = struct.unpack("Q", content[k : k + 8])[0]
+    k += 8
 
     y_axis_name = (
         np.array(struct.unpack("8s", content[k : k + 8]))[0].decode("utf-8").strip()
@@ -105,8 +105,8 @@ def read_3d_diag(path):
     k += 8
     y_max = struct.unpack("d", content[k : k + 8])[0]
     k += 8
-    y_ncells = struct.unpack("i", content[k : k + 4])[0]
-    k += 4
+    y_ncells = struct.unpack("Q", content[k : k + 8])[0]
+    k += 8
 
     z_axis_name = (
         np.array(struct.unpack("8s", content[k : k + 8]))[0].decode("utf-8").strip()
@@ -116,8 +116,8 @@ def read_3d_diag(path):
     k += 8
     z_max = struct.unpack("d", content[k : k + 8])[0]
     k += 8
-    z_ncells = struct.unpack("i", content[k : k + 4])[0]
-    k += 4
+    z_ncells = struct.unpack("Q", content[k : k + 8])[0]
+    k += 8
 
     dx = (x_max - x_min) / x_ncells
     dy = (y_max - y_min) / y_ncells

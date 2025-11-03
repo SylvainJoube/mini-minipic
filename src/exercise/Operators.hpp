@@ -11,9 +11,8 @@
 namespace operators {
 
 // Returns the sum of all elements of a View on the host
-template <typename T>
-double sum_host(typename Particles<T>::hostview_t view) {
-  T res = 0.f;
+double sum_host(typename Particles::hostview_t view) {
+  double res = 0.f;
   for (size_t i=0; i < view.extent(0); ++i) {
     res += view(i);
   }
@@ -21,9 +20,8 @@ double sum_host(typename Particles<T>::hostview_t view) {
 }
 
 // Returns the sum of all elements of a View on the device
-template <typename T>
-double sum_device(typename Particles<T>::view_t view) {
-  T res;
+double sum_device(typename Particles::view_t view) {
+  double res;
   Kokkos::parallel_reduce(Kokkos::RangePolicy(0, view.extent(0)),
       KOKKOS_LAMBDA(const int i, double &partial_res){
         partial_res += view(i);
@@ -32,6 +30,39 @@ double sum_device(typename Particles<T>::view_t view) {
   return res;
 }
 
+double sum_power(ElectroMagn::view_t v, const int power) {
+  double sum = 0;
+
+  // ---> Host case
+  typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>>
+    mdrange_policy;
+  Kokkos::parallel_reduce(
+      "sum_field_on_device",
+      mdrange_policy({0, 0, 0}, {v.extent(0), v.extent(1), v.extent(2)}),
+      KOKKOS_LAMBDA(const int ix, const int iy, const int iz, double &local_sum) {
+      local_sum += std::pow(v(ix, iy, iz), power);
+      },
+      sum);
+
+  return sum;
+}
+
+double sum_power(ElectroMagn::hostview_t v, const int power) {
+  double sum = 0;
+
+  // ---> Host case
+  typedef Kokkos::MDRangePolicy<Kokkos::DefaultHostExecutionSpace, Kokkos::Rank<3>>
+    mdrange_policy;
+  Kokkos::parallel_reduce(
+      "sum_field_on_host",
+      mdrange_policy({0, 0, 0}, {v.extent(0), v.extent(1), v.extent(2)}),
+      KOKKOS_LAMBDA(const int ix, const int iy, const int iz, double &local_sum) {
+      local_sum += Kokkos::pow(v(ix, iy, iz), power);
+      },
+      sum);
+
+  return sum;
+}
 
 // ______________________________________________________________________________
 //
@@ -40,18 +71,19 @@ double sum_device(typename Particles<T>::view_t view) {
 //! \param[in] em  global electromagnetic fields
 //! \param[in] particles  vector of particle species
 // ______________________________________________________________________________
-auto interpolate(ElectroMagn &em, std::vector<Particles<mini_float>> &particles) -> void {
+auto interpolate(ElectroMagn &em, std::vector<Particles> &particles) -> void {
+
   for (size_t is = 0; is < particles.size(); is++) {
 
     const unsigned int n_particles = particles[is].size();
 
-    field_t Ex = em.Ex_m.data_m_h;
-    field_t Ey = em.Ey_m.data_m_h;
-    field_t Ez = em.Ez_m.data_m_h;
+    ElectroMagn::hostview_t Ex = em.Ex_h_m;
+    ElectroMagn::hostview_t Ey = em.Ey_h_m;
+    ElectroMagn::hostview_t Ez = em.Ez_h_m;
 
-    field_t Bx = em.Bx_m.data_m_h;
-    field_t By = em.By_m.data_m_h;
-    field_t Bz = em.Bz_m.data_m_h;
+    ElectroMagn::hostview_t Bx = em.Bx_h_m;
+    ElectroMagn::hostview_t By = em.By_h_m;
+    ElectroMagn::hostview_t Bz = em.Bz_h_m;
 
     for (unsigned int part = 0; part < n_particles; ++part) {
       // Calculate normalized positions
@@ -191,36 +223,36 @@ auto interpolate(ElectroMagn &em, std::vector<Particles<mini_float>> &particles)
 //! \param[in] particles  vector of particle species
 //! \param[in] dt time step to use for the pusher
 // ______________________________________________________________________________
-auto push(std::vector<Particles<mini_float>> &particles, double dt) -> void {
+auto push(std::vector<Particles> &particles, double dt) -> void {
   // For each species
   for (size_t is = 0; is < particles.size(); is++) {
 
     const unsigned int n_particles = particles[is].size();
 
     // q' = dt * (q/2m)
-    const mini_float qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
+    const double qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
 
     for (unsigned int ip = 0; ip < n_particles; ++ip) {
       // 1/2 E
-      mini_float px = qp * particles[is].Ex_h_(ip);
-      mini_float py = qp * particles[is].Ey_h_(ip);
-      mini_float pz = qp * particles[is].Ez_h_(ip);
+      double px = qp * particles[is].Ex_h_(ip);
+      double py = qp * particles[is].Ey_h_(ip);
+      double pz = qp * particles[is].Ez_h_(ip);
 
-      const mini_float ux = particles[is].mx_h_(ip) + px;
-      const mini_float uy = particles[is].my_h_(ip) + py;
-      const mini_float uz = particles[is].mz_h_(ip) + pz;
+      const double ux = particles[is].mx_h_(ip) + px;
+      const double uy = particles[is].my_h_(ip) + py;
+      const double uz = particles[is].mz_h_(ip) + pz;
 
       // gamma-factor
-      mini_float usq       = (ux * ux + uy * uy + uz * uz);
-      mini_float gamma     = sqrt(1 + usq);
-      mini_float gamma_inv = qp / gamma;
+      double usq       = (ux * ux + uy * uy + uz * uz);
+      double gamma     = sqrt(1 + usq);
+      double gamma_inv = qp / gamma;
 
       // B, T = Transform to rotate the particle
-      const mini_float tx  = gamma_inv * particles[is].Bx_h_(ip);
-      const mini_float ty  = gamma_inv * particles[is].By_h_(ip);
-      const mini_float tz  = gamma_inv * particles[is].Bz_h_(ip);
-      const mini_float tsq = 1. + (tx * tx + ty * ty + tz * tz);
-      mini_float tsq_inv   = 1. / tsq;
+      const double tx  = gamma_inv * particles[is].Bx_h_(ip);
+      const double ty  = gamma_inv * particles[is].By_h_(ip);
+      const double tz  = gamma_inv * particles[is].Bz_h_(ip);
+      const double tsq = 1. + (tx * tx + ty * ty + tz * tz);
+      double tsq_inv   = 1. / tsq;
 
       px += ((1.0 + tx * tx - ty * ty - tz * tz) * ux + 2.0 * (tx * ty + tz) * uy +
           2.0 * (tz * tx - ty) * uz) *
@@ -260,36 +292,36 @@ auto push(std::vector<Particles<mini_float>> &particles, double dt) -> void {
 //! \param[in] particles vector of species Particles
 //! \param[in] dt time step to use for the pusher
 // ______________________________________________________________________________
-auto push_momentum(std::vector<Particles<mini_float>> &particles, double dt) -> void {
+auto push_momentum(std::vector<Particles> &particles, double dt) -> void {
   // for each species
   for (size_t is = 0; is < particles.size(); is++) {
 
     const int n_particles = particles[is].size();
 
     // q' = dt * (q/2m)
-    const mini_float qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
+    const double qp = particles[is].charge_m * dt * 0.5 / particles[is].mass_m;
 
     for(int ip = 0; ip < n_particles; ++ip) {
       // 1/2 E
-      mini_float px = qp * particles[is].Ex_h_(ip);
-      mini_float py = qp * particles[is].Ey_h_(ip);
-      mini_float pz = qp * particles[is].Ez_h_(ip);
+      double px = qp * particles[is].Ex_h_(ip);
+      double py = qp * particles[is].Ey_h_(ip);
+      double pz = qp * particles[is].Ez_h_(ip);
 
-      const mini_float ux = particles[is].mx_h_(ip) + px;
-      const mini_float uy = particles[is].my_h_(ip) + py;
-      const mini_float uz = particles[is].mz_h_(ip) + pz;
+      const double ux = particles[is].mx_h_(ip) + px;
+      const double uy = particles[is].my_h_(ip) + py;
+      const double uz = particles[is].mz_h_(ip) + pz;
 
       // gamma-factor
-      mini_float usq       = (ux * ux + uy * uy + uz * uz);
-      mini_float gamma     = sqrt(1 + usq);
-      mini_float gamma_inv = qp / gamma;
+      double usq       = (ux * ux + uy * uy + uz * uz);
+      double gamma     = sqrt(1 + usq);
+      double gamma_inv = qp / gamma;
 
       // B, T = Transform to rotate the particle
-      const mini_float tx  = gamma_inv * particles[is].Bx_h_(ip);
-      const mini_float ty  = gamma_inv * particles[is].By_h_(ip);
-      const mini_float tz  = gamma_inv * particles[is].Bz_h_(ip);
-      const mini_float tsq = 1. + (tx * tx + ty * ty + tz * tz);
-      mini_float tsq_inv   = 1. / tsq;
+      const double tx  = gamma_inv * particles[is].Bx_h_(ip);
+      const double ty  = gamma_inv * particles[is].By_h_(ip);
+      const double tz  = gamma_inv * particles[is].Bz_h_(ip);
+      const double tsq = 1. + (tx * tx + ty * ty + tz * tz);
+      double tsq_inv   = 1. / tsq;
 
       px += ((1.0 + tx * tx - ty * ty - tz * tz) * ux + 2.0 * (tx * ty + tz) * uy +
               2.0 * (tz * tx - ty) * uz) *
@@ -325,28 +357,28 @@ auto push_momentum(std::vector<Particles<mini_float>> &particles, double dt) -> 
 //! or reflect the particles which leave the domain
 //
 //! \param[in] Params & params - constant global simulation parameters
-//! \param[in] std::vector<Particles<mini_float>> & particles - vector of species Particles
+//! \param[in] std::vector<Particles> & particles - vector of species Particles
 // _____________________________________________________________________
-auto pushBC(Params &params, std::vector<Particles<mini_float>> &particles) -> void {
+auto pushBC(Params &params, std::vector<Particles> &particles) -> void {
 
-  const mini_float inf_global[3] = {params.inf_x, params.inf_y, params.inf_z};
-  const mini_float sup_global[3] = {params.sup_x, params.sup_y, params.sup_z};
+  const double inf_global[3] = {params.inf_x, params.inf_y, params.inf_z};
+  const double sup_global[3] = {params.sup_x, params.sup_y, params.sup_z};
 
   // Periodic conditions
   if (params.boundary_condition_code == 1) {
 
-    const mini_float length[3] = {params.Lx, params.Ly, params.Lz};
+    const double length[3] = {params.Lx, params.Ly, params.Lz};
 
     for (size_t is = 0; is < particles.size(); is++) {
 
       unsigned int n_particles = particles[is].size();
 
-      Particles<double>::hostview_t x = particles[is].x_h_;
-      Particles<double>::hostview_t y = particles[is].y_h_;
-      Particles<double>::hostview_t z = particles[is].z_h_;
+      Particles::hostview_t x = particles[is].x_h_;
+      Particles::hostview_t y = particles[is].y_h_;
+      Particles::hostview_t z = particles[is].z_h_;
 
       for (unsigned int part = 0; part < n_particles; ++part) {
-          mini_float *pos[3] = {&x(part), &y(part), &z(part)};
+          double *pos[3] = {&x(part), &y(part), &z(part)};
 
           for (unsigned int d = 0; d < 3; d++) {
             if (*pos[d] >= sup_global[d]) {
@@ -370,18 +402,18 @@ auto pushBC(Params &params, std::vector<Particles<mini_float>> &particles) -> vo
 
       unsigned int n_particles = particles[is].size();
 
-      Particles<double>::hostview_t x = particles[is].x_h_;
-      Particles<double>::hostview_t y = particles[is].y_h_;
-      Particles<double>::hostview_t z = particles[is].z_h_;
+      Particles::hostview_t x = particles[is].x_h_;
+      Particles::hostview_t y = particles[is].y_h_;
+      Particles::hostview_t z = particles[is].z_h_;
 
-      Particles<double>::hostview_t mx = particles[is].mx_h_;
-      Particles<double>::hostview_t my = particles[is].my_h_;
-      Particles<double>::hostview_t mz = particles[is].mz_h_;
+      Particles::hostview_t mx = particles[is].mx_h_;
+      Particles::hostview_t my = particles[is].my_h_;
+      Particles::hostview_t mz = particles[is].mz_h_;
 
       for(unsigned int part = 0; part < n_particles; ++part) {
-          mini_float *pos[3] = {&x(part), &y(part), &z(part)};
+          double *pos[3] = {&x(part), &y(part), &z(part)};
 
-          mini_float *momentum[3] = {&mx(part), &my(part), &mz(part)};
+          double *momentum[3] = {&mx(part), &my(part), &mz(part)};
 
           for (unsigned int d = 0; d < 3; d++) {
 
@@ -412,17 +444,17 @@ auto pushBC(Params &params, std::vector<Particles<mini_float>> &particles) -> vo
 //! \param[in] em electromagnetic fields
 //! \param[in] particles vector of species Particles
 // _______________________________________________________________________
-void project(Params &params, ElectroMagn &em, std::vector<Particles<mini_float>> &particles) {
+void project(Params &params, ElectroMagn &em, std::vector<Particles> &particles) {
   for (size_t is = 0; is < particles.size(); is++) {
 
     const int n_particles            = particles[is].size();
     const double inv_cell_volume_x_q = params.inv_cell_volume * particles[is].charge_m;
 
-    Particles<double>::hostview_t mx = particles[is].mx_h_;
-    Particles<double>::hostview_t my = particles[is].my_h_;
-    Particles<double>::hostview_t mz = particles[is].mz_h_;
+    Particles::hostview_t mx = particles[is].mx_h_;
+    Particles::hostview_t my = particles[is].my_h_;
+    Particles::hostview_t mz = particles[is].mz_h_;
 
-   for (int part = 0; part < n_particles; ++part) {
+    for (int part = 0; part < n_particles; ++part) {
       // Delete if already compute by Pusher
       const double charge_weight = inv_cell_volume_x_q * particles[is].weight_h_(part);
 
@@ -464,40 +496,40 @@ void project(Params &params, ElectroMagn &em, std::vector<Particles<mini_float>>
       coeffs[1] = posyn - iyp;
       coeffs[2] = poszn - izp;
 
-      em.Jx_m.data_m_h(ixd, iyp, izp) += (1 - coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jxp;
-      em.Jx_m.data_m_h(ixd, iyp, izp + 1) += (1 - coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jxp;
-      em.Jx_m.data_m_h(ixd, iyp + 1, izp) += (1 - coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jxp;
-      em.Jx_m.data_m_h(ixd, iyp + 1, izp + 1) += (1 - coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jxp;
-      em.Jx_m.data_m_h(ixd + 1, iyp, izp) += (coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jxp;
-      em.Jx_m.data_m_h(ixd + 1, iyp, izp + 1) += (coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jxp;
-      em.Jx_m.data_m_h(ixd + 1, iyp + 1, izp) += (coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jxp;
-      em.Jx_m.data_m_h(ixd + 1, iyp + 1, izp + 1) += (coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jxp;
+      em.Jx_h_m(ixd, iyp, izp) += (1 - coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jxp;
+      em.Jx_h_m(ixd, iyp, izp + 1) += (1 - coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jxp;
+      em.Jx_h_m(ixd, iyp + 1, izp) += (1 - coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jxp;
+      em.Jx_h_m(ixd, iyp + 1, izp + 1) += (1 - coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jxp;
+      em.Jx_h_m(ixd + 1, iyp, izp) += (coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jxp;
+      em.Jx_h_m(ixd + 1, iyp, izp + 1) += (coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jxp;
+      em.Jx_h_m(ixd + 1, iyp + 1, izp) += (coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jxp;
+      em.Jx_h_m(ixd + 1, iyp + 1, izp + 1) += (coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jxp;
 
       coeffs[0] = posxn - ixp;
       coeffs[1] = posyn - 0.5 - iyd;
       coeffs[2] = poszn - izp;
 
-      em.Jy_m.data_m_h(ixp, iyd, izp) += (1 - coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jyp;
-      em.Jy_m.data_m_h(ixp, iyd, izp + 1) += (1 - coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jyp;
-      em.Jy_m.data_m_h(ixp, iyd + 1, izp) += (1 - coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jyp;
-      em.Jy_m.data_m_h(ixp, iyd + 1, izp + 1) += (1 - coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jyp;
-      em.Jy_m.data_m_h(ixp + 1, iyd, izp) += (coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jyp;
-      em.Jy_m.data_m_h(ixp + 1, iyd, izp + 1) += (coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jyp;
-      em.Jy_m.data_m_h(ixp + 1, iyd + 1, izp) += (coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jyp;
-      em.Jy_m.data_m_h(ixp + 1, iyd + 1, izp + 1) += (coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jyp;
+      em.Jy_h_m(ixp, iyd, izp) += (1 - coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jyp;
+      em.Jy_h_m(ixp, iyd, izp + 1) += (1 - coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jyp;
+      em.Jy_h_m(ixp, iyd + 1, izp) += (1 - coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jyp;
+      em.Jy_h_m(ixp, iyd + 1, izp + 1) += (1 - coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jyp;
+      em.Jy_h_m(ixp + 1, iyd, izp) += (coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jyp;
+      em.Jy_h_m(ixp + 1, iyd, izp + 1) += (coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jyp;
+      em.Jy_h_m(ixp + 1, iyd + 1, izp) += (coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jyp;
+      em.Jy_h_m(ixp + 1, iyd + 1, izp + 1) += (coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jyp;
 
       coeffs[0] = posxn - ixp;
       coeffs[1] = posyn - iyp;
       coeffs[2] = poszn - 0.5 - izd;
 
-      em.Jz_m.data_m_h(ixp, iyp, izd) += (1 - coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jzp;
-      em.Jz_m.data_m_h(ixp, iyp, izd + 1) += (1 - coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jzp;
-      em.Jz_m.data_m_h(ixp, iyp + 1, izd) += (1 - coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jzp;
-      em.Jz_m.data_m_h(ixp, iyp + 1, izd + 1) += (1 - coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jzp;
-      em.Jz_m.data_m_h(ixp + 1, iyp, izd) += (coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jzp;
-      em.Jz_m.data_m_h(ixp + 1, iyp, izd + 1) += (coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jzp;
-      em.Jz_m.data_m_h(ixp + 1, iyp + 1, izd) += (coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jzp;
-      em.Jz_m.data_m_h(ixp + 1, iyp + 1, izd + 1) += (coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jzp;
+      em.Jz_h_m(ixp, iyp, izd) += (1 - coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jzp;
+      em.Jz_h_m(ixp, iyp, izd + 1) += (1 - coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jzp;
+      em.Jz_h_m(ixp, iyp + 1, izd) += (1 - coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jzp;
+      em.Jz_h_m(ixp, iyp + 1, izd + 1) += (1 - coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jzp;
+      em.Jz_h_m(ixp + 1, iyp, izd) += (coeffs[0]) * (1 - coeffs[1]) * (1 - coeffs[2]) * Jzp;
+      em.Jz_h_m(ixp + 1, iyp, izd + 1) += (coeffs[0]) * (1 - coeffs[1]) * (coeffs[2]) * Jzp;
+      em.Jz_h_m(ixp + 1, iyp + 1, izd) += (coeffs[0]) * (coeffs[1]) * (1 - coeffs[2]) * Jzp;
+      em.Jz_h_m(ixp + 1, iyp + 1, izd + 1) += (coeffs[0]) * (coeffs[1]) * (coeffs[2]) * Jzp;
     }  // end for each particles
   }  // end for each species
 }
@@ -516,19 +548,19 @@ auto solve_maxwell(const Params &params, ElectroMagn &em) -> void {
   /////     Solve Maxwell Ampere (E)
   // Electric field Ex (d,p,p)
 
-  field_t Ex = em.Ex_m.data_m_h;
-  field_t Ey = em.Ey_m.data_m_h;
-  field_t Ez = em.Ez_m.data_m_h;
+  ElectroMagn::hostview_t Ex = em.Ex_h_m;
+  ElectroMagn::hostview_t Ey = em.Ey_h_m;
+  ElectroMagn::hostview_t Ez = em.Ez_h_m;
 
-  field_t Bx = em.Bx_m.data_m_h;
-  field_t By = em.By_m.data_m_h;
-  field_t Bz = em.Bz_m.data_m_h;
+  ElectroMagn::hostview_t Bx = em.Bx_h_m;
+  ElectroMagn::hostview_t By = em.By_h_m;
+  ElectroMagn::hostview_t Bz = em.Bz_h_m;
 
   // Electric field Ex (d,p,p)
   for (int ix = 0; ix < em.nx_d_m; ++ix) {
     for (int iy = 0; iy < em.ny_p_m; ++iy) {
       for (int iz = 0; iz < em.nz_p_m; ++iz) {
-        Ex(ix, iy, iz) += -dt * em.Jx_m.data_m_h(ix, iy + 1, iz + 1) +
+        Ex(ix, iy, iz) += -dt * em.Jx_h_m(ix, iy + 1, iz + 1) +
           dt_over_dy * (Bz(ix, iy + 1, iz) - Bz(ix, iy, iz)) -
           dt_over_dz * (By(ix, iy, iz + 1) - By(ix, iy, iz));
       }
@@ -539,7 +571,7 @@ auto solve_maxwell(const Params &params, ElectroMagn &em) -> void {
   for (int ix = 0; ix < em.nx_p_m; ++ix) {
     for (int iy = 0; iy < em.ny_d_m; ++iy) {
       for (int iz = 0; iz < em.nz_p_m; ++iz) {
-        Ey(ix, iy, iz) += -dt * em.Jy_m.data_m_h(ix + 1, iy, iz + 1) -
+        Ey(ix, iy, iz) += -dt * em.Jy_h_m(ix + 1, iy, iz + 1) -
           dt_over_dx * (Bz(ix + 1, iy, iz) - Bz(ix, iy, iz)) +
           dt_over_dz * (Bx(ix, iy, iz + 1) - Bx(ix, iy, iz));
       }
@@ -551,7 +583,7 @@ auto solve_maxwell(const Params &params, ElectroMagn &em) -> void {
   for (int ix = 0; ix < em.nx_p_m; ++ix) {
     for (int iy = 0; iy < em.ny_p_m; ++iy) {
       for (int iz = 0; iz < em.nz_d_m; ++iz) {
-        Ez(ix, iy, iz) += -dt * em.Jz_m.data_m_h(ix + 1, iy + 1, iz) +
+        Ez(ix, iy, iz) += -dt * em.Jz_h_m(ix + 1, iy + 1, iz) +
           dt_over_dx * (By(ix + 1, iy, iz) - By(ix, iy, iz)) -
           dt_over_dy * (Bx(ix, iy + 1, iz) - Bx(ix, iy, iz));
       }
@@ -601,24 +633,23 @@ auto solve_maxwell(const Params &params, ElectroMagn &em) -> void {
 //! \param[in] Params & params - global constant parameters
 // _______________________________________________________________
 void currentBC(Params &params, ElectroMagn &em) {
-
   if (params.boundary_condition == "periodic") {
 
-    device_field_t Jx = em.Jx_m.data_m;
-    device_field_t Jy = em.Jy_m.data_m;
-    device_field_t Jz = em.Jz_m.data_m;
+    ElectroMagn::view_t Jx = em.Jx_m;
+    ElectroMagn::view_t Jy = em.Jy_m;
+    ElectroMagn::view_t Jz = em.Jz_m;
 
-    const auto nx_Jx = em.Jx_m.nx();
-    const auto ny_Jx = em.Jx_m.ny();
-    const auto nz_Jx = em.Jx_m.nz();
+    const auto nx_Jx = em.Jx_m.extent(0);
+    const auto ny_Jx = em.Jx_m.extent(1);
+    const auto nz_Jx = em.Jx_m.extent(2);
 
-    const auto nx_Jy = em.Jy_m.nx();
-    const auto ny_Jy = em.Jy_m.ny();
-    const auto nz_Jy = em.Jy_m.nz();
+    const auto nx_Jy = em.Jy_m.extent(0);
+    const auto ny_Jy = em.Jy_m.extent(1);
+    const auto nz_Jy = em.Jy_m.extent(2);
 
-    const auto nx_Jz = em.Jz_m.nx();
-    const auto ny_Jz = em.Jz_m.ny();
-    const auto nz_Jz = em.Jz_m.nz();
+    const auto nx_Jz = em.Jz_m.extent(0);
+    const auto ny_Jz = em.Jz_m.extent(1);
+    const auto nz_Jz = em.Jz_m.extent(2);
 
     typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<2>> mdrange_policy;
 
@@ -736,22 +767,21 @@ auto solveBC(Params &params, ElectroMagn &em) -> void {
   typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<2>> mdrange_policy;
 
   if (params.boundary_condition == "periodic") {
+    ElectroMagn::view_t Bx = em.Bx_m;
+    ElectroMagn::view_t By = em.By_m;
+    ElectroMagn::view_t Bz = em.Bz_m;
 
-    device_field_t Bx = em.Bx_m.data_m;
-    device_field_t By = em.By_m.data_m;
-    device_field_t Bz = em.Bz_m.data_m;
+    const auto nx_Bx = em.Bx_m.extent(0);
+    const auto ny_Bx = em.Bx_m.extent(1);
+    const auto nz_Bx = em.Bx_m.extent(2);
 
-    const auto nx_Bx = em.Bx_m.nx();
-    const auto ny_Bx = em.Bx_m.ny();
-    const auto nz_Bx = em.Bx_m.nz();
+    const auto nx_By = em.By_m.extent(0);
+    const auto ny_By = em.By_m.extent(1);
+    const auto nz_By = em.By_m.extent(2);
 
-    const auto nx_By = em.By_m.nx();
-    const auto ny_By = em.By_m.ny();
-    const auto nz_By = em.By_m.nz();
-
-    const auto nx_Bz = em.Bz_m.nx();
-    const auto ny_Bz = em.Bz_m.ny();
-    const auto nz_Bz = em.Bz_m.nz();
+    const auto nx_Bz = em.Bz_m.extent(0);
+    const auto ny_Bz = em.Bz_m.extent(1);
+    const auto nz_Bz = em.Bz_m.extent(2);
 
     // X dim
     // By (d,p,d)
@@ -825,22 +855,21 @@ auto solveBC(Params &params, ElectroMagn &em) -> void {
     Kokkos::fence();
 
   } else if (params.boundary_condition == "reflective") {
+    ElectroMagn::view_t Bx = em.Bx_m;
+    ElectroMagn::view_t By = em.By_m;
+    ElectroMagn::view_t Bz = em.Bz_m;
 
-    device_field_t Bx = em.Bx_m.data_m;
-    device_field_t By = em.By_m.data_m;
-    device_field_t Bz = em.Bz_m.data_m;
+    const auto nx_Bx = em.Bx_m.extent(0);
+    const auto ny_Bx = em.Bx_m.extent(1);
+    const auto nz_Bx = em.Bx_m.extent(2);
 
-    const auto nx_Bx = em.Bx_m.nx();
-    const auto ny_Bx = em.Bx_m.ny();
-    const auto nz_Bx = em.Bx_m.nz();
+    const auto nx_By = em.By_m.extent(0);
+    const auto ny_By = em.By_m.extent(1);
+    const auto nz_By = em.By_m.extent(2);
 
-    const auto nx_By = em.By_m.nx();
-    const auto ny_By = em.By_m.ny();
-    const auto nz_By = em.By_m.nz();
-
-    const auto nx_Bz = em.Bz_m.nx();
-    const auto ny_Bz = em.Bz_m.ny();
-    const auto nz_Bz = em.Bz_m.nz();
+    const auto nx_Bz = em.Bz_m.extent(0);
+    const auto ny_Bz = em.Bz_m.extent(1);
+    const auto nz_Bz = em.Bz_m.extent(2);
 
     // X dim
     // By (d,p,d)
@@ -924,23 +953,22 @@ auto antenna(Params &params,
              double x,
              double t) -> void {
 
-  Field<mini_float> *J = &em.Jz_m;
+  ElectroMagn::hostview_t *J = &em.Jz_h_m;
 
-  const int ix = std::floor((x - params.inf_x - J->dual_x_m * 0.5 * params.dx) / params.dx);
+  const int ix = std::floor((x - params.inf_x - em.J_dual_zx_m * 0.5 * params.dx) / params.dx);
 
   const double yfs = 0.5 * params.Ly + params.inf_y;
   const double zfs = 0.5 * params.Lz + params.inf_z;
 
-  for (int iy = 0; iy < J->ny_m; ++iy) {
-    for (int iz = 0; iz < J->nz_m; ++iz) {
+  for (std::size_t iy = 0; iy < J->extent(1); ++iy) {
+    for (std::size_t iz = 0; iz < J->extent(2); ++iz) {
 
-      const double y = (iy - J->dual_y_m * 0.5) * params.dy + params.inf_y - yfs;
-      const double z = (iz - J->dual_z_m * 0.5) * params.dz + params.inf_z - zfs;
+      const double y = (iy - em.J_dual_zy_m * 0.5) * params.dy + params.inf_y - yfs;
+      const double z = (iz - em.J_dual_zz_m * 0.5) * params.dz + params.inf_z - zfs;
 
       (*J)(ix, iy, iz) = profile(y, z, t);
     }
   }
-
 } // end antenna
 
 } // end namespace operators
