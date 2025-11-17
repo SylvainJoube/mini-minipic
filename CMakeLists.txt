@@ -108,14 +108,14 @@ add_executable(
   "src/common/Params.cpp"
   "src/common/Tools.cpp"
   "${SETUP_FILE}"
+  "${IMPLEMENTATION_DIRECTORY}/Managers.cpp"
+  "${IMPLEMENTATION_DIRECTORY}/Operators.cpp"
   "src/main.cpp"
 )
 target_include_directories(
   minipic
   PUBLIC
-    "src/setups"
     "src/common"
-    "${IMPLEMENTATION_DIRECTORY}"
 )
 target_compile_definitions(
   minipic
