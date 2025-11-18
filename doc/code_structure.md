@@ -36,7 +36,7 @@ Each file provides either a set of functions, a namespace or a data container (c
 
 ## Macros
 
-| Macros                   | Description                                                            |
-|--------------------------|------------------------------------------------------------------------|
-| `__MINIPIC_KOKKOS_SCATTERVIEW__` | Activate specific KOKKOS projection types: scatter_view.       |
-| `__MINIPIC_KOKKOS_UNIFIED__ ` | Macro for code using Kokkos with unified memory                   |
+| Macros                        | Description                                      |
+|-------------------------------|--------------------------------------------------|
+| `MINIPIC_DEBUG`               | Enable verbose output                            |
+| `MINIPIC_KOKKOS_SCATTER_VIEW` | Use Kokkos scatter views for projection operator |
