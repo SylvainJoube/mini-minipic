@@ -12,15 +12,18 @@ message("------------------------------------------------------------------")
 
 # Disable in-source builds to prevent source tree corruption.
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
- message( FATAL_ERROR "In-source builds are not allowed. You should create a separate directory for build files and delete CMakeCache.txt." )
+  message(
+    FATAL_ERROR
+    "In-source builds are not allowed. You should create a separate directory "
+    "for build files and delete CMakeCache.txt."
+  )
 endif()
 
 # __________________________________________________________________
 # Options
 
-# Debug, Release, RelWithDebInfo and MinSizeRel
 if(NOT CMAKE_BUILD_TYPE)
- set(
+  set(
     CMAKE_BUILD_TYPE
     "RelWithDebInfo"
     CACHE
@@ -35,8 +38,27 @@ message("Build type: ${CMAKE_BUILD_TYPE}")
 option(MINIPIC_DEBUG "Debug messages" OFF)
 option(MINIPIC_WARNING "Warning mode" OFF)
 option(MINIPIC_KOKKOS_SCATTER_VIEW "Use scatter views (Kokkos implementation)" OFF)
-set(MINIPIC_IMPLEMENTATION "exercise" CACHE STRING "Which implementation to use (must be an existing directory in src/)")
-set(MINIPIC_SETUP "antenna" CACHE STRING "Which setup to build and run with (must be the stem name of a valid .cpp file in src/setups/)")
+set(
+  MINIPIC_IMPLEMENTATION
+  "exercise"
+  CACHE
+  STRING
+  "Which implementation to use (must be an existing directory in src/)"
+)
+set(
+  MINIPIC_SETUP
+  "antenna"
+  CACHE
+  STRING
+  "Which setup to build and run with (must be the stem name of a valid .cpp file in src/setups/)"
+)
+set(
+  MINIPIC_KOKKOS_SOURCE_DIRECTORY
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/kokkos"
+  CACHE
+  PATH
+  "Path to the local source directory of Kokkos"
+)
 
 # _________________________________________________________________
 # Debug mode
@@ -47,7 +69,7 @@ message("Debug mode: ${MINIPIC_DEBUG}")
 # Warning mode
 
 if(MINIPIC_WARNING)
- set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 endif()
 message("Warning mode: ${MINIPIC_WARNING}")
 
@@ -70,7 +92,7 @@ message("Implementation: ${MINIPIC_IMPLEMENTATION}")
 
 set(SETUP_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/setups/${MINIPIC_SETUP}.cpp")
 if(NOT EXISTS "${SETUP_FILE}")
-    message(FATAL_ERROR "Cannot find setup file ${MINIPIC_SETUP}.cpp in src/setups/")
+  message(FATAL_ERROR "Cannot find setup file ${MINIPIC_SETUP}.cpp in src/setups/")
 endif()
 message("Setup: ${MINIPIC_SETUP}")
 
@@ -87,17 +109,26 @@ project(
 # __________________________________________________________________
 # Dependencies
 
-find_package(Kokkos QUIET)
+find_package(Kokkos 4.6.1 QUIET)
 if(Kokkos_FOUND)
   message(STATUS "Kokkos provided as installed: ${Kokkos_DIR} (version \"${Kokkos_VERSION}\")")
   message(STATUS "  With backend: ${Kokkos_DEVICES}")
   message(STATUS "  With options: ${Kokkos_OPTIONS}")
   message(STATUS "  For architectures: ${Kokkos_ARCH}")
-elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/kokkos/CMakeLists.txt")
-  message(STATUS "Kokkos submodule found. Using the submodule.")
+elseif(EXISTS "${MINIPIC_KOKKOS_SOURCE_DIRECTORY}/CMakeLists.txt")
+  message(STATUS "Kokkos provided as a submodule: ${MINIPIC_KOKKOS_SOURCE_DIRECTORY}")
   add_subdirectory(external/kokkos)
 else()
-  message(FATAL_ERROR "Kokkos not found. Try running: git submodule update --init --recursive")
+  message(STATUS "Kokkos downloaded: ${MINIPIC_KOKKOS_SOURCE_DIRECTORY}")
+  include(FetchContent)
+  FetchContent_Declare(
+    kokkos
+    DOWNLOAD_EXTRACT_TIMESTAMP ON
+    URL https://github.com/kokkos/kokkos/releases/download/4.6.01/kokkos-4.6.01.tar.gz
+    URL_HASH SHA256=b9d70e4653b87a06dbb48d63291bf248058c7c7db4bd91979676ad5609bb1a3a
+    SOURCE_DIR "${MINIPIC_KOKKOS_SOURCE_DIRECTORY}"
+  )
+  FetchContent_MakeAvailable(kokkos)
 endif()
 
 # __________________________________________________________________
