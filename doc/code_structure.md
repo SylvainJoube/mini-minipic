@@ -20,7 +20,7 @@ Each file provides either a set of functions, a namespace or a data container (c
 |-------------------|-----------------------|----------------------------------------------------------------------------------|
 | Diagnostics       | `src/common`          | Function to perform diagnostic output                                            |
 | ElectroMagn       | `src/common`          | Class that provide an electromagnetic and current grids based on Kokkos 3D views |
-| Headers           | `src/common`          | Determine the best headers to use depending on the selected backend              |
+| Headers           | `src/common`          | Some helpers                                                                     |
 | Managers          | `src/common`          | Free functions called by the subdomain manager, to call the operators            |
 | Operators         | `src/common`          | Free functions performing mathematical operations for the simulation             |
 | Params            | `src/common`          | Parameters of the simulation                                                     |
