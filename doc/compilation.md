@@ -83,9 +83,10 @@ Project specific options:
 
 - `-DMINI_MINIPIC_DEBUG=<ON/OFF>`: enable/disable debug messages (`OFF` by default);
 - `-DMINI_MINIPIC_WARNING=<ON/OFF>`: enable/disable compiler warnings (add `-Wall`, `-Wextra`, and `-Wpedantic`, `OFF` by default);
-- `-DMINI_MINIPIC_UNIFIED_MEMORY=<ON/OFF>`: enable/disable unified memory views (`OFF` by default);
-- `-DMINI_MINIPIC_IMPLEMENTATION=<implementation>`: which implementation to use (`exercise` or `kokkos`, default to the former);
-- `-DMINI_MINIPIC_SETUP=<setup>`: which setup to build and run with (`antenna`, `b_cst`, `beam`, `e_cst`, `thermal`, default to the former).
+- `-DMINI_MINIPIC_KOKKOS_SCATTER_VIEW=<ON/OFF>`: use Kokkos scatter views for projection operator;
+- `-DMINI_MINIPIC_IMPLEMENTATION=<implementation>`: which implementation to use (`exercise`,`kokkos`, or any directory with valid files, default to the former);
+- `-DMINI_MINIPIC_SETUP=<setup>`: which setup to build and run with (`antenna`, `b_cst`, `beam`, `e_cst`, `thermal`, default to the former);
+- `-DMINI_MINIPIC_KOKKOS_SOURCE_DIRECTORY=</path/to/kokkos/sources>`: Path to the local source directory of Kokkos (default to `./external/kokkos`).
 
 ## Examples
 
