@@ -150,6 +150,6 @@ int main(int argc, char *argv[]) {
 
   Kokkos::finalize();
 
-  std::cerr << "> minipic finalized" << std::endl;
+  std::cerr << "> mini-minipic finalized" << std::endl;
   return 0;
 }

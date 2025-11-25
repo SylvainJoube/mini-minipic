@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=minipic
+#SBATCH --job-name=mini-minipic
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=10
 #SBATCH --threads-per-core=1

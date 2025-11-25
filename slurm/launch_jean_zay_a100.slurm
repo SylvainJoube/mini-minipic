@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=minipic
+#SBATCH --job-name=mini-minipic
 #SBATCH --qos=qos_gpu_a100-dev
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=10

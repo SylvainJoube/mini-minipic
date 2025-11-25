@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=minipic
+#SBATCH --job-name=mini-minipic
 #SBATCH --nodes=1
 #SBATCH --output=output
 #SBATCH --error=error

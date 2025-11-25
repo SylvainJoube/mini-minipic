@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=minipic
+#SBATCH --job-name=mini-minipic
 #SBATCH --qos=qos_gpu-dev
 #SBATCH --ntasks=1
 ##SBATCH --ntasks-per-node=1

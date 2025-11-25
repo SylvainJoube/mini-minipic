@@ -102,7 +102,7 @@ message("------------------------------------------------------------------")
 # Project
 
 project(
-  minipic
+  mini-minipic
   LANGUAGES CXX
 )
 
@@ -135,7 +135,7 @@ endif()
 # Create executable with options
 
 add_executable(
-  minipic
+  mini-minipic
   "src/common/Params.cpp"
   "src/common/Tools.cpp"
   "${SETUP_FILE}"
@@ -144,18 +144,18 @@ add_executable(
   "src/main.cpp"
 )
 target_include_directories(
-  minipic
+  mini-minipic
   PUBLIC
     "src/common"
 )
 target_compile_definitions(
-  minipic
+  mini-minipic
   PUBLIC
     $<$<BOOL:${MINI_MINIPIC_DEBUG}>:MINI_MINIPIC_DEBUG>
     $<$<BOOL:${MINI_MINIPIC_KOKKOS_SCATTER_VIEW}>:MINI_MINIPIC_KOKKOS_SCATTER_VIEW>
 )
 target_link_libraries(
-  minipic
+  mini-minipic
   PRIVATE
     Kokkos::kokkos
 )

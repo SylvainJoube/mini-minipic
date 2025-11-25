@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=minipic
+#SBATCH --job-name=mini-minipic
 #SBATCH --output=output
 #SBATCH --error=error
 #SBATCH --time=00:20:00
