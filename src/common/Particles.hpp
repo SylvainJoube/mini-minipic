@@ -15,6 +15,8 @@
 #include <cstdio>
 #include <cmath>
 
+#include <iomanip>
+
 // ________________________________________________________
 //
 //! \brief Represent an array of particles for 1 species
