@@ -10,11 +10,15 @@ jobs:
   build_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.12
+          cache: "pip"
       - name: Install libminipic
         run: pip install .
       - name: Prepare, build, run, verify
-        run: mini-run --config cpu_openmp --implementation kokkos
+        run: mini-run --config cpu-openmp --implementation kokkos
         env:
           OMP_PROC_BIND: spread
           OMP_PLACES: threads
