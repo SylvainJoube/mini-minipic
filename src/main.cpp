@@ -8,7 +8,7 @@
 //                | '_ ` _ \| | '_ \| | '_ \| |/ __|
 //                | | | | | | | | | | | |_) | | (__
 //                |_| |_| |_|_|_| |_|_| .__/|_|\___|
-//                                            |_|
+//                                    |_|
 
 //! \brief Main file for Minipic
 //! NOTE: this program is intended for computer science studies
