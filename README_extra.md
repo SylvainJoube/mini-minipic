@@ -2,6 +2,8 @@
 
 Nous sommes l'équipe 5.
 
+[Version en ligne, pas à jour](https://codimd.math.cnrs.fr/1Dj1bIr9R4SyfbW7IHdriQ?both#)
+
 ## Connexion Ruche
 
 Host : ruche.mesocentre.universite-paris-saclay.fr
@@ -12,7 +14,6 @@ Lien vers le projet du hackathon : https://github.com/CExA-project/mini-minipic
 ```bash
 ssh cexa-hk24@ruche.mesocentre.universite-paris-saclay.fr
 cd $WORKDIR
-git clone --recurse-submodules https://github.com/CExA-project/mini-minipic.git
 ```
 
 Aller dans le fichier https://github.com/CExA-project/mini-minipic/blob/main/doc/compilation.md pour apprendre comment compiler.
@@ -43,7 +44,8 @@ sshfs cexa-hk24@ruche.mesocentre.universite-paris-saclay.fr:/gpfs/workdir/cexa-h
 
 ```bash
 # Une fois connecté au serveur Ruche
-git clone --recurse-submodules https://github.com/CExA-project/mini-minipic.git \
+cd $WORKDIR \
+&& git clone --recurse-submodules https://github.com/CExA-project/mini-minipic.git \
 && cd mini-minipic && git submodule update --init \
 && pip3 install --user .
 ```
@@ -75,6 +77,7 @@ cmake --build build --parallel 10
 
 Pour lancer une compilation et un job, il faut demander un noeud depuis la frontale, et ensuite s'y connecter via ssh.
 
+[Lien vers les scripts slurm](slurm/README.md)
 
 
 Pour le lancement slurm, suivre ces instructions : https://github.com/CExA-project/mini-minipic/blob/main/slurm/launch_ruche_a100.slurm
