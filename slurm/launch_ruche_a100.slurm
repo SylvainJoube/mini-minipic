@@ -30,4 +30,6 @@ fi
 
 # Launch the test
 
-mini-run -g gpu-a100 -s thermal_heavy
+mini-run -g gpu-a100 -s thermal
+
+# thermal_heavy met trop de temps, on l'a donc remplacé par "thermal" tout simple.
