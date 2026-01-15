@@ -51,6 +51,52 @@ cd $WORKDIR \
 ```
 
 
+## Demander un noeud avec un GPU dedans
+
+Une fois connecté à un noeud de Ruche depuis la frontale, exécuter les commandes suivantes pour pouvoir utiliser un gpu :
+
+```bash
+salloc \
+      --reservation prouveurc_178 \
+      --partition gpua100 \
+      --gres gpu:1 \
+      -t 30
+# Demande un noeud avec un GPU a100, pendant 30 minutes
+```
+
+Exemple d'output :
+```bash
+salloc: Granted job allocation 11192643
+salloc: Waiting for resource configuration
+salloc: Nodes ruche-gpu17 are ready for job
+```
+
+Il faut ensuite se connecter à la machine qui a un GPU : 
+
+```bash
+shh ruche-gpu17
+```
+
+Il faut ensuite relancer la préparation du noeud :
+
+```bash
+set -e \
+&& cd $WORKDIR/mini-minipic \
+&& module purge \
+&& module load "gcc/13.2.0/gcc-4.8.5" \
+&& module load "cuda/12.8.0/gcc-13.2.0" \
+&& module load "cmake/3.28.3/gcc-11.2.0" \
+&& module load "python-nospack/3.12.4/gcc-11.2.0"
+```
+
+Utiliser la commande mini-run pour compiler et débuter l'exécution :
+
+```bash
+# Launch the test
+mini-run -g gpu-a100 -s thermal
+```
+
+
 ## A chaque connexion à Ruche
 
 ```bash
@@ -68,9 +114,6 @@ cmake -B build -DCMAKE_CXX_COMPILER=g++ -DKokkos_ENABLE_OPENMP=ON
 cmake --build build --parallel 10
 ```
 
-## Fichiers Python permettant d'automatiser le cmake
-
-???
 
 
 ## Lancement de slurm
