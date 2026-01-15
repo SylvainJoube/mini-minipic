@@ -68,13 +68,13 @@ Exemple d'output :
 ```bash
 salloc: Granted job allocation 11192643
 salloc: Waiting for resource configuration
-salloc: Nodes ruche-gpu17 are ready for job
+salloc: Nodes ruche-gpu13 are ready for job
 ```
 
 Il faut ensuite se connecter à la machine qui a un GPU : 
 
 ```bash
-shh ruche-gpu17
+ssh ruche-gpu13
 ```
 
 Il faut ensuite relancer la préparation du noeud :
