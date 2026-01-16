@@ -1,0 +1,32 @@
+{
+  "parameters" : {
+    "iterations" : 600,
+    "save_timers_period" : 50,
+    "save_timers_start" : 50
+  },
+  "initialization" : 0.280013,
+  "50" : {
+    "pic iteration" : 5.169316e+00,
+    "diags" : 7.515556e-01,
+    "all diags" : [7.515556e-01]
+  },
+  "100" : {
+    "pic iteration" : 1.033477e+01,
+    "diags" : 1.386258e+00,
+    "all diags" : [1.386258e+00]
+  },
+  "150" : {
+    "pic iteration" : 1.538837e+01,
+    "diags" : 1.951891e+00,
+    "all diags" : [1.951891e+00]
+  },
+  "200" : {
+    "pic iteration" : 2.431924e+01,
+    "diags" : 3.290826e+00,
+    "all diags" : [3.290826e+00]
+  },
+  "250" : {
+    "pic iteration" : 3.153842e+01,
+    "diags" : 4.089535e+00,
+    "all diags" : [4.089535e+00]
+  },

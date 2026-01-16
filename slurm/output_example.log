@@ -1,0 +1,1034 @@
+   - charge: 1
+   - particles per cell: 8
+   - temperature: 0.01
+   - drift velocity: 0 0 0
+   - pos init method: electron
+   - pos init level: cell
+
+ > Memory usage: 
+   - EM grid size: 307.062 Kb
+   - Current grid size: 364.5 Kb
+   - Total grid size: 2935.88 Kb
+
+ > Timers: 
+   - save timers period: 301
+   - save timers start: 0
+   - Bufferize timers: 1
+
+ > General diag properties: 
+   - output directory: diags
+   - cloud output period: 50
+   - field output period: 50
+   - scalar output period: 10
+
+ > Particle binning: 
+   - diag_w_gamma on species 0 1 
+     * axis 0: gamma [0, 0, 32]
+     * format: binary
+     * output period: 50
+   - diag_x_y_z_d on species 0 1 
+     * axis 0: x [0, 1, 32]
+     * axis 1: y [0, 1, 32]
+     * axis 2: z [0, 1, 32]
+     * format: vtk
+     * output period: 50
+   - diag_px_py_pz_d on species 0 1 
+     * axis 0: px [0, 0, 32]
+     * axis 1: py [0, 0, 32]
+     * axis 2: pz [0, 0, 32]
+     * format: vtk
+     * output period: 50
+
+  Kokkos Version: 4.7.1
+Compiler:
+  KOKKOS_COMPILER_GNU: 1320
+Architecture:
+  CPU architecture: none
+  Default Device: OpenMP
+  GPU architecture: none
+  platform: 64bit
+Atomics:
+Vectorization:
+  KOKKOS_ENABLE_PRAGMA_IVDEP: no
+  KOKKOS_ENABLE_PRAGMA_LOOPCOUNT: no
+  KOKKOS_ENABLE_PRAGMA_UNROLL: no
+  KOKKOS_ENABLE_PRAGMA_VECTOR: no
+Memory:
+Options:
+  KOKKOS_ENABLE_ASM: yes
+  KOKKOS_ENABLE_CXX17: yes
+  KOKKOS_ENABLE_CXX20: no
+  KOKKOS_ENABLE_CXX23: no
+  KOKKOS_ENABLE_CXX26: no
+  KOKKOS_ENABLE_DEBUG_BOUNDS_CHECK: no
+  KOKKOS_ENABLE_HWLOC: no
+  KOKKOS_ENABLE_LIBDL: yes
+Host Parallel Execution Space:
+  KOKKOS_ENABLE_OPENMP: yes
+
+OpenMP Runtime Configuration:
+Kokkos::OpenMP thread_pool_topology[ 1 x 8 x 1 ]
+ __________________________________________________
+
+ Initialization
+
+ Field grids: 4.58047 Mb
+
+ Species electron
+ - Initialized particles: 262144
+ - Total kinetic energy: 1.4998e-07
+ - Memory footprint: 28 Mb
+ Species proton
+ - Initialized particles: 262144
+ - Total kinetic energy: 1.50098e-07
+ - Memory footprint: 28 Mb
+
+ -------------------------------- |
+ Check sum for fields             |
+ -------------------------------- |
+ Field  | Host       | Device     |
+ -------------------------------- |
+ Ex     |  0.000e+00 |  0.000e+00 | 
+ Ey     |  0.000e+00 |  0.000e+00 | 
+ Ez     |  0.000e+00 |  0.000e+00 | 
+ Bx     |  0.000e+00 |  0.000e+00 | 
+ By     |  0.000e+00 |  0.000e+00 | 
+ Bz     |  0.000e+00 |  0.000e+00 | 
+
+ -------------------------------- |
+ Check sum for particles          |
+ -------------------------------- |
+ vector | Host       | Device     |
+ -------------------------------- |
+ weight |  2.000e-05 |  2.000e-05 | 
+      x |  2.622e+05 |  2.622e+05 | 
+      y |  2.621e+05 |  2.621e+05 | 
+      z |  2.621e+05 |  2.621e+05 | 
+     mx | -4.180e-02 | -4.180e-02 | 
+     my | -1.067e+00 | -1.067e+00 | 
+     mz |  5.291e+00 |  5.291e+00 | 
+     Ex |  0.000e+00 |  0.000e+00 | 
+     Ey |  0.000e+00 |  0.000e+00 | 
+     Ez |  0.000e+00 |  0.000e+00 | 
+     Bx |  0.000e+00 |  0.000e+00 | 
+     By |  0.000e+00 |  0.000e+00 | 
+     Bz |  0.000e+00 |  0.000e+00 | 
+
+ #########    START COMPUTE    ############
+ -----------------------------------------------------|
+           |       |           | Elapsed  | Remaining |
+ Iteration |    %  | Particles | Time (s) | Time (s)  |
+ ----------|-------|-----------|----------|-----------|
+        50 |  16.7 |    524288 | 3.95e+00 |  1.98e+01 | 
+       100 |  33.3 |    524288 | 8.04e+00 |  1.61e+01 | 
+       150 |  50.0 |    524288 | 1.22e+01 |  1.22e+01 | 
+       200 |  66.7 |    524288 | 1.64e+01 |  8.22e+00 | 
+       250 |  83.3 |    524288 | 2.07e+01 |  4.14e+00 | 
+       300 | 100.0 |    524288 | 2.49e+01 |  0.00e+00 | 
+#########    END COMPUTE    ############
+
+
+ ---------------------------------------------- |
+ Global timers                                  |
+ ---------------------------------------------- |
+            code part |  time (s)  | percentage |
+ ---------------------|------------|----------- |
+       initialization |   0.201149 |     0.80 % |
+            main loop |  24.936920 |    99.20 % |
+ ---------------------------------------------- |
+ Main loop                                      |
+ ---------------------------------------------- |
+            code part |  time (s)  | percentage |
+ ---------------------|------------|----------- |
+       PIC iterations |  23.215020 |    92.19 % |
+          Diagnostics |   1.965625 |     7.81 % |
+> mini-minipic finalized
+-- Validation -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+mini-validate --path /gpfs/workdir/cexa-hk24/mini-minipic/build/thermal --setup thermal --threshold 1e-10
+ > Checking scalars
+    - Initial scalar for species 0: 0, 262144.0, 1.499802569489299e-07
+    - Initial scalar for species 1: 0, 262144.0, 1.500982120183949e-07
+    - Final scalar for species 0: 300, 262144.0, 1.499801677227092e-07
+    - Final scalar for species 1: 300, 262144.0, 1.500981415474694e-07
+    - Field values at final iteration 300: 
+ 8.707252968548585e-16, 8.187202771374727e-16, 8.133778516563606e-16, 1.014322708204905e-15, 2.73851721910124e-15, 2.932533327560371e-15
+ > Checking gamma spectrums
+    - For species 0: [np.float64(1.0150306498218023e-05), np.float64(1.0150305070953287e-05), np.float64(1.015031026575343e-05), np.float64(1.0150307734880672e-05), np.float64(1.0150311192601487e-05), np.float64(1.0150308434741582e-05)]
+    - For species 1: [np.float64(1.000157589162598e-05), np.float64(1.0001575891523015e-05), np.float64(1.000157589136796e-05), np.float64(1.000157589118226e-05), np.float64(1.0001575890954698e-05), np.float64(1.0001575890766535e-05)]
+ > Checking initial cloud file
+   - For Species 0: 131076.16027212347, 131072.115340914, 131069.5246495383, 21014.376991466852, 21028.564131718493, 21014.480007866434
+   - For Species 1: 131076.16027212347, 131072.115340914, 131069.5246495383, 488.339374560899, 488.375137441201, 488.2761036710392
+ > Checking final cloud file
+    - For Species 0: 131059.99739212362, 131023.15182992321, 131142.1355539146, 21014.42145328788, 21028.616998630852, 21014.458067973406
+    - For Species 1: 131100.95742997798, 130988.17625004012, 131067.20585065623, 488.34037148012436, 488.373555886603, 488.2763737032678
+Setup thermal tested with success
+== Setup beam ===============================================================================================================================================================================================
+-- Configuration --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmake /gpfs/workdir/cexa-hk24/mini-minipic -DMINI_MINIPIC_SETUP=beam -DMINI_MINIPIC_IMPLEMENTATION=exercise -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=ON
+------------------------------------------------------------------
+CMakeList for (mini)Mini-PIC
+------------------------------------------------------------------
+Build type: Release
+Debug mode: OFF
+Warning mode: OFF
+Kokkos scatter view: OFF
+Implementation: exercise
+Setup: beam
+------------------------------------------------------------------
+-- The CXX compiler identification is GNU 13.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /gpfs/softs/spack_0.17/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-13.2.0-pzycn2dcss34kqyoxb5nuxj2y375euym/bin/g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Kokkos provided as a directory: /gpfs/workdir/cexa-hk24/mini-minipic/external/kokkos
+-- Setting default Kokkos CXX standard to 17
+-- Kokkos version: 4.7.1
+-- The project name is: Kokkos
+-- Using internal gtest for testing
+-- Configured git information in /gpfs/workdir/cexa-hk24/mini-minipic/build/beam/external/kokkos/generated/Kokkos_Version_Info.cpp
+-- Using -std=gnu++17 for C++17 extensions as feature
+-- Built-in Execution Spaces:
+--     Device Parallel: NoTypeDefined
+--     Host Parallel: Kokkos::OpenMP
+--       Host Serial: NONE
+-- 
+-- Architectures:
+-- Found TPLLIBDL: /usr/include  
+-- Found OpenMP_CXX: -fopenmp (found suitable version "4.5", minimum required is "3.0") 
+-- Found OpenMP: TRUE (found suitable version "4.5", minimum required is "3.0") found components: CXX 
+-- Using internal desul_atomics copy
+-- Performing Test KOKKOS_LINK_OPTIONS_CHECK
+-- Performing Test KOKKOS_LINK_OPTIONS_CHECK - Success
+-- Experimental mdspan support is enabled
+-- Using internal mdspan directory /gpfs/workdir/cexa-hk24/mini-minipic/external/kokkos/tpls/mdspan/include
+-- Kokkos Backends: OPENMP
+-- Configuring done (3.2s)
+-- Generating done (0.4s)
+-- Build files have been written to: /gpfs/workdir/cexa-hk24/mini-minipic/build/beam
+-- Compilation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmake --build /gpfs/workdir/cexa-hk24/mini-minipic/build/beam --parallel 4
+[  2%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Abort.cpp.o
+[  5%] Building CXX object external/kokkos/simd/src/CMakeFiles/kokkossimd.dir/Kokkos_SIMD_dummy.cpp.o
+[  8%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_CPUDiscovery.cpp.o
+[ 11%] Linking CXX static library libkokkossimd.a
+-- Configured git information in /gpfs/workdir/cexa-hk24/mini-minipic/build/beam/external/kokkos/generated/Kokkos_Version_Info.cpp
+[ 11%] Built target AlwaysCheckGit
+[ 11%] Built target kokkossimd
+[ 14%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Command_Line_Parsing.cpp.o
+[ 17%] Building CXX object external/kokkos/CMakeFiles/impl_git_version.dir/generated/Kokkos_Version_Info.cpp.o
+[ 20%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Core.cpp.o
+[ 23%] Linking CXX static library libimpl_git_version.a
+[ 26%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Error.cpp.o
+[ 26%] Built target impl_git_version
+[ 29%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_ExecPolicy.cpp.o
+[ 32%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostBarrier.cpp.o
+[ 35%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostSpace.cpp.o
+[ 38%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostSpace_deepcopy.cpp.o
+[ 41%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostThreadTeam.cpp.o
+[ 44%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_MemoryPool.cpp.o
+[ 47%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Profiling.cpp.o
+[ 50%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_SharedAlloc.cpp.o
+[ 52%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Stacktrace.cpp.o
+[ 55%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_hwloc.cpp.o
+[ 58%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP.cpp.o
+[ 61%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP_Instance.cpp.o
+[ 64%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP_Task.cpp.o
+[ 67%] Linking CXX static library libkokkoscore.a
+[ 67%] Built target kokkoscore
+[ 70%] Building CXX object external/kokkos/algorithms/src/CMakeFiles/kokkosalgorithms.dir/KokkosAlgorithms_dummy.cpp.o
+[ 73%] Building CXX object external/kokkos/containers/src/CMakeFiles/kokkoscontainers.dir/impl/Kokkos_UnorderedMap_impl.cpp.o
+[ 76%] Linking CXX static library libkokkosalgorithms.a
+[ 76%] Built target kokkosalgorithms
+[ 79%] Linking CXX static library libkokkoscontainers.a
+[ 79%] Built target kokkoscontainers
+[ 91%] Building CXX object CMakeFiles/mini-minipic.dir/src/common/Params.cpp.o
+[ 91%] Building CXX object CMakeFiles/mini-minipic.dir/src/common/Tools.cpp.o
+[ 91%] Building CXX object CMakeFiles/mini-minipic.dir/src/setups/beam.cpp.o
+[ 91%] Building CXX object CMakeFiles/mini-minipic.dir/src/exercise/Managers.cpp.o
+[ 94%] Building CXX object CMakeFiles/mini-minipic.dir/src/exercise/Operators.cpp.o
+[ 97%] Building CXX object CMakeFiles/mini-minipic.dir/src/main.cpp.o
+[100%] Linking CXX executable mini-minipic
+[100%] Built target mini-minipic
+-- Execution ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+OMP_PROC_BIND=spread OMP_PLACES=threads OMP_NUM_THREADS=8 ./mini-minipic
+ __________________________________________________
+
+             o          o                              
+   _  _  _       _  _                                  
+  / |/ |/ |  |  / |/ |  |  _       _       _           
+    |  |  |_/|_/ _|_ |_/|_/_)_ __ (_)_ __ (_) ___      
+                | '_ ` _ \| | '_ \| | '_ \| |/ __|  
+                | | | | | | | | | | | |_) | | (__      
+                |_| |_| |_|_|_| |_|_| .__/|_|\___|    
+                                    |_|                
+
+ __________________________________________________
+
+ Simulation name: beam
+
+ Input parameters summary: 
+
+ > Time: 
+   - simulation time: 0.454309
+   - dt: 0.000908618
+   - CFL: 0.00100958
+   - number of iterations: 500
+
+ > Domain: 
+   - min/max in x: 0 0.0559564
+   - min/max in y: 0 0.0559564
+   - min/max in z: 0 0.0559564
+   - Boundary conditions: periodic
+
+   - cells: 32 32 32
+   - space step: 0.00174864 0.00174864 0.00174864
+
+ > Species 0: electron
+   - mass: 1
+   - charge: -1
+   - particles per cell: 8
+   - temperature: 0.000195695
+   - drift velocity: 0.9 0 0
+   - pos init method: random
+   - pos init level: cell
+
+ > Species 1: proton
+   - mass: 1836.12
+   - charge: 1
+   - particles per cell: 8
+   - temperature: 0.000195695
+   - drift velocity: 0.9 0 0
+   - pos init method: electron
+   - pos init level: cell
+
+ > Memory usage: 
+   - EM grid size: 307.062 Kb
+   - Current grid size: 364.5 Kb
+   - Total grid size: 2935.88 Kb
+
+ > Timers: 
+   - save timers period: 100
+   - save timers start: 10
+   - Bufferize timers: 1
+
+ > General diag properties: 
+   - output directory: diags
+   - field output period: 50
+   - scalar output period: 10
+
+ > Particle binning: 
+   - diag_w_gamma on species 0 1 
+     * axis 0: gamma [0, 0, 32]
+     * format: binary
+     * output period: 50
+   - diag_x_y_z_d on species 0 1 
+     * axis 0: x [0, 0.0559564, 32]
+     * axis 1: y [0, 0.0559564, 32]
+     * axis 2: z [0, 0.0559564, 32]
+     * format: vtk
+     * output period: 50
+
+  Kokkos Version: 4.7.1
+Compiler:
+  KOKKOS_COMPILER_GNU: 1320
+Architecture:
+  CPU architecture: none
+  Default Device: OpenMP
+  GPU architecture: none
+  platform: 64bit
+Atomics:
+Vectorization:
+  KOKKOS_ENABLE_PRAGMA_IVDEP: no
+  KOKKOS_ENABLE_PRAGMA_LOOPCOUNT: no
+  KOKKOS_ENABLE_PRAGMA_UNROLL: no
+  KOKKOS_ENABLE_PRAGMA_VECTOR: no
+Memory:
+Options:
+  KOKKOS_ENABLE_ASM: yes
+  KOKKOS_ENABLE_CXX17: yes
+  KOKKOS_ENABLE_CXX20: no
+  KOKKOS_ENABLE_CXX23: no
+  KOKKOS_ENABLE_CXX26: no
+  KOKKOS_ENABLE_DEBUG_BOUNDS_CHECK: no
+  KOKKOS_ENABLE_HWLOC: no
+  KOKKOS_ENABLE_LIBDL: yes
+Host Parallel Execution Space:
+  KOKKOS_ENABLE_OPENMP: yes
+
+OpenMP Runtime Configuration:
+Kokkos::OpenMP thread_pool_topology[ 1 x 8 x 1 ]
+ __________________________________________________
+
+ Initialization
+
+ Field grids: 4.58047 Mb
+
+ Species electron
+ - Initialized particles: 17171
+ - Total kinetic energy: 1.48651e-05
+ - Memory footprint: 1.83406 Mb
+ Species proton
+ - Initialized particles: 17171
+ - Total kinetic energy: 0.0272705
+ - Memory footprint: 1.83406 Mb
+
+ -------------------------------- |
+ Check sum for fields             |
+ -------------------------------- |
+ Field  | Host       | Device     |
+ -------------------------------- |
+ Ex     |  0.000e+00 |  0.000e+00 | 
+ Ey     |  0.000e+00 |  0.000e+00 | 
+ Ez     |  0.000e+00 |  0.000e+00 | 
+ Bx     |  0.000e+00 |  0.000e+00 | 
+ By     |  0.000e+00 |  0.000e+00 | 
+ Bz     |  0.000e+00 |  0.000e+00 | 
+
+ -------------------------------- |
+ Check sum for particles          |
+ -------------------------------- |
+ vector | Host       | Device     |
+ -------------------------------- |
+ weight |  2.295e-05 |  2.295e-05 | 
+      x |  9.614e+02 |  9.614e+02 | 
+      y |  9.610e+02 |  9.610e+02 | 
+      z |  9.602e+02 |  9.602e+02 | 
+     mx |  7.093e+04 |  7.093e+04 | 
+     my |  9.468e-01 |  9.468e-01 | 
+     mz | -5.752e-01 | -5.752e-01 | 
+     Ex |  0.000e+00 |  0.000e+00 | 
+     Ey |  0.000e+00 |  0.000e+00 | 
+     Ez |  0.000e+00 |  0.000e+00 | 
+     Bx |  0.000e+00 |  0.000e+00 | 
+     By |  0.000e+00 |  0.000e+00 | 
+     Bz |  0.000e+00 |  0.000e+00 | 
+
+ #########    START COMPUTE    ############
+ -----------------------------------------------------|
+           |       |           | Elapsed  | Remaining |
+ Iteration |    %  | Particles | Time (s) | Time (s)  |
+ ----------|-------|-----------|----------|-----------|
+        50 |  10.0 |     34342 | 4.22e-01 |  3.80e+00 | 
+       100 |  20.0 |     34342 | 8.41e-01 |  3.36e+00 | 
+       150 |  30.0 |     34342 | 1.25e+00 |  2.93e+00 | 
+       200 |  40.0 |     34342 | 1.67e+00 |  2.51e+00 | 
+       250 |  50.0 |     34342 | 2.08e+00 |  2.08e+00 | 
+       300 |  60.0 |     34342 | 2.49e+00 |  1.66e+00 | 
+       350 |  70.0 |     34342 | 2.91e+00 |  1.25e+00 | 
+       400 |  80.0 |     34342 | 3.33e+00 |  8.33e-01 | 
+       450 |  90.0 |     34342 | 3.76e+00 |  4.18e-01 | 
+       500 | 100.0 |     34342 | 4.18e+00 |  0.00e+00 | 
+#########    END COMPUTE    ############
+
+
+ ---------------------------------------------- |
+ Global timers                                  |
+ ---------------------------------------------- |
+            code part |  time (s)  | percentage |
+ ---------------------|------------|----------- |
+       initialization |   0.055938 |     1.32 % |
+            main loop |   4.184744 |    98.68 % |
+ ---------------------------------------------- |
+ Main loop                                      |
+ ---------------------------------------------- |
+            code part |  time (s)  | percentage |
+ ---------------------|------------|----------- |
+       PIC iterations |   2.709922 |    62.90 % |
+          Diagnostics |   1.598128 |    37.10 % |
+> mini-minipic finalized
+-- Validation -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+mini-validate --path /gpfs/workdir/cexa-hk24/mini-minipic/build/beam --setup beam --threshold 1e-10
+ > Check scalars
+   - Final field scalar (500): Ex = 4.176915389526632e-11, Ey = 6.842353427332495e-11, Ez = 7.384372445331301e-11, Bx = 1.49035946114606e-13, By = 7.824479096514265e-11, Bz = 7.512299160673973e-11
+    - Initial scalar for species 0: 0, 17171.0, 1.486505893401623e-05
+    - Initial scalar for species 1: 0, 17171.0, 0.02727053664199492
+    - Final scalar for species 0: 500, 17171.0, 1.315434546122977e-05
+    - Final scalar for species 1: 500, 17171.0, 0.02727052355889324
+ > Checking gamma spectrums
+    - For species 0: [np.float64(2.6341788307225324e-05), np.float64(2.6340187152554147e-05), np.float64(2.6306898149346652e-05), np.float64(2.6206688009942556e-05), np.float64(2.5975705446921552e-05), np.float64(2.574907979383365e-05), np.float64(2.5452293402770978e-05), np.float64(2.5170196364576205e-05), np.float64(2.4977679280317943e-05), np.float64(2.4735294342510922e-05)]
+    - For species 1: [np.float64(2.6328534922736266e-05), np.float64(2.6328536440890358e-05), np.float64(2.6328533755778843e-05), np.float64(2.632854415509002e-05), np.float64(2.6328544972441773e-05), np.float64(2.632856789960755e-05), np.float64(2.632856920474773e-05), np.float64(2.632857126462831e-05), np.float64(2.6328573868197502e-05), np.float64(2.6328558916765828e-05)]
+Setup beam tested with success
+== Setup antenna ============================================================================================================================================================================================
+-- Configuration --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmake /gpfs/workdir/cexa-hk24/mini-minipic -DMINI_MINIPIC_SETUP=antenna -DMINI_MINIPIC_IMPLEMENTATION=exercise -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=ON
+------------------------------------------------------------------
+CMakeList for (mini)Mini-PIC
+------------------------------------------------------------------
+Build type: Release
+Debug mode: OFF
+Warning mode: OFF
+Kokkos scatter view: OFF
+Implementation: exercise
+Setup: antenna
+------------------------------------------------------------------
+-- The CXX compiler identification is GNU 13.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /gpfs/softs/spack_0.17/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-13.2.0-pzycn2dcss34kqyoxb5nuxj2y375euym/bin/g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Kokkos provided as a directory: /gpfs/workdir/cexa-hk24/mini-minipic/external/kokkos
+-- Setting default Kokkos CXX standard to 17
+-- Kokkos version: 4.7.1
+-- The project name is: Kokkos
+-- Using internal gtest for testing
+-- Configured git information in /gpfs/workdir/cexa-hk24/mini-minipic/build/antenna/external/kokkos/generated/Kokkos_Version_Info.cpp
+-- Using -std=gnu++17 for C++17 extensions as feature
+-- Built-in Execution Spaces:
+--     Device Parallel: NoTypeDefined
+--     Host Parallel: Kokkos::OpenMP
+--       Host Serial: NONE
+-- 
+-- Architectures:
+-- Found TPLLIBDL: /usr/include  
+-- Found OpenMP_CXX: -fopenmp (found suitable version "4.5", minimum required is "3.0") 
+-- Found OpenMP: TRUE (found suitable version "4.5", minimum required is "3.0") found components: CXX 
+-- Using internal desul_atomics copy
+-- Performing Test KOKKOS_LINK_OPTIONS_CHECK
+-- Performing Test KOKKOS_LINK_OPTIONS_CHECK - Success
+-- Experimental mdspan support is enabled
+-- Using internal mdspan directory /gpfs/workdir/cexa-hk24/mini-minipic/external/kokkos/tpls/mdspan/include
+-- Kokkos Backends: OPENMP
+-- Configuring done (1.9s)
+-- Generating done (0.5s)
+-- Build files have been written to: /gpfs/workdir/cexa-hk24/mini-minipic/build/antenna
+-- Compilation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmake --build /gpfs/workdir/cexa-hk24/mini-minipic/build/antenna --parallel 4
+[  2%] Building CXX object external/kokkos/simd/src/CMakeFiles/kokkossimd.dir/Kokkos_SIMD_dummy.cpp.o
+[  8%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_CPUDiscovery.cpp.o
+[  8%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Abort.cpp.o
+[ 11%] Linking CXX static library libkokkossimd.a
+[ 11%] Built target kokkossimd
+[ 14%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Command_Line_Parsing.cpp.o
+[ 17%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Core.cpp.o
+[ 20%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Error.cpp.o
+-- Configured git information in /gpfs/workdir/cexa-hk24/mini-minipic/build/antenna/external/kokkos/generated/Kokkos_Version_Info.cpp
+[ 20%] Built target AlwaysCheckGit
+[ 23%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_ExecPolicy.cpp.o
+[ 26%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostBarrier.cpp.o
+[ 29%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostSpace.cpp.o
+[ 32%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostSpace_deepcopy.cpp.o
+[ 35%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostThreadTeam.cpp.o
+[ 38%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_MemoryPool.cpp.o
+[ 41%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Profiling.cpp.o
+[ 44%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_SharedAlloc.cpp.o
+[ 47%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Stacktrace.cpp.o
+[ 50%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_hwloc.cpp.o
+[ 52%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP.cpp.o
+[ 55%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP_Instance.cpp.o
+[ 58%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP_Task.cpp.o
+[ 61%] Building CXX object external/kokkos/CMakeFiles/impl_git_version.dir/generated/Kokkos_Version_Info.cpp.o
+[ 64%] Linking CXX static library libimpl_git_version.a
+[ 64%] Built target impl_git_version
+[ 67%] Linking CXX static library libkokkoscore.a
+[ 67%] Built target kokkoscore
+[ 70%] Building CXX object external/kokkos/algorithms/src/CMakeFiles/kokkosalgorithms.dir/KokkosAlgorithms_dummy.cpp.o
+[ 73%] Building CXX object external/kokkos/containers/src/CMakeFiles/kokkoscontainers.dir/impl/Kokkos_UnorderedMap_impl.cpp.o
+[ 76%] Linking CXX static library libkokkosalgorithms.a
+[ 76%] Built target kokkosalgorithms
+[ 79%] Linking CXX static library libkokkoscontainers.a
+[ 79%] Built target kokkoscontainers
+[ 88%] Building CXX object CMakeFiles/mini-minipic.dir/src/common/Tools.cpp.o
+[ 88%] Building CXX object CMakeFiles/mini-minipic.dir/src/common/Params.cpp.o
+[ 88%] Building CXX object CMakeFiles/mini-minipic.dir/src/setups/antenna.cpp.o
+[ 91%] Building CXX object CMakeFiles/mini-minipic.dir/src/exercise/Managers.cpp.o
+[ 94%] Building CXX object CMakeFiles/mini-minipic.dir/src/exercise/Operators.cpp.o
+[ 97%] Building CXX object CMakeFiles/mini-minipic.dir/src/main.cpp.o
+[100%] Linking CXX executable mini-minipic
+[100%] Built target mini-minipic
+-- Execution ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+OMP_PROC_BIND=spread OMP_PLACES=threads OMP_NUM_THREADS=8 ./mini-minipic
+ __________________________________________________
+
+             o          o                              
+   _  _  _       _  _                                  
+  / |/ |/ |  |  / |/ |  |  _       _       _           
+    |  |  |_/|_/ _|_ |_/|_/_)_ __ (_)_ __ (_) ___      
+                | '_ ` _ \| | '_ \| | '_ \| |/ __|  
+                | | | | | | | | | | | |_) | | (__      
+                |_| |_| |_|_|_| |_|_| .__/|_|\___|    
+                                    |_|                
+
+ __________________________________________________
+
+ Simulation name: antenna
+
+ Input parameters summary: 
+
+ > Time: 
+   - simulation time: 3.63596
+   - dt: 0.00605994
+   - CFL: 0.00637888
+   - number of iterations: 600
+
+ > Domain: 
+   - min/max in x: 0 3
+   - min/max in y: 0 1
+   - min/max in z: 0 1
+   - Boundary conditions: periodic
+
+   - cells: 384 64 64
+   - space step: 0.0078125 0.015625 0.015625
+
+ > Operators: 
+   - Current projection disabled 
+
+ > Memory usage: 
+   - EM grid size: 13136.1 Kb
+   - Current grid size: 14016.5 Kb
+   - Total grid size: 120866 Kb
+
+ > Timers: 
+   - save timers period: 50
+   - save timers start: 50
+   - Bufferize timers: 0
+
+ > General diag properties: 
+   - output directory: diags
+   - field output period: 100
+   - scalar output period: 10
+
+
+  Kokkos Version: 4.7.1
+Compiler:
+  KOKKOS_COMPILER_GNU: 1320
+Architecture:
+  CPU architecture: none
+  Default Device: OpenMP
+  GPU architecture: none
+  platform: 64bit
+Atomics:
+Vectorization:
+  KOKKOS_ENABLE_PRAGMA_IVDEP: no
+  KOKKOS_ENABLE_PRAGMA_LOOPCOUNT: no
+  KOKKOS_ENABLE_PRAGMA_UNROLL: no
+  KOKKOS_ENABLE_PRAGMA_VECTOR: no
+Memory:
+Options:
+  KOKKOS_ENABLE_ASM: yes
+  KOKKOS_ENABLE_CXX17: yes
+  KOKKOS_ENABLE_CXX20: no
+  KOKKOS_ENABLE_CXX23: no
+  KOKKOS_ENABLE_CXX26: no
+  KOKKOS_ENABLE_DEBUG_BOUNDS_CHECK: no
+  KOKKOS_ENABLE_HWLOC: no
+  KOKKOS_ENABLE_LIBDL: yes
+Host Parallel Execution Space:
+  KOKKOS_ENABLE_OPENMP: yes
+
+OpenMP Runtime Configuration:
+Kokkos::OpenMP thread_pool_topology[ 1 x 8 x 1 ]
+ __________________________________________________
+
+ Initialization
+
+ Field grids: 115.04 Mb
+
+
+ -------------------------------- |
+ Check sum for fields             |
+ -------------------------------- |
+ Field  | Host       | Device     |
+ -------------------------------- |
+ Ex     |  0.000e+00 |  0.000e+00 | 
+ Ey     |  0.000e+00 |  0.000e+00 | 
+ Ez     |  0.000e+00 |  0.000e+00 | 
+ Bx     |  0.000e+00 |  0.000e+00 | 
+ By     |  0.000e+00 |  0.000e+00 | 
+ Bz     |  0.000e+00 |  0.000e+00 | 
+
+ -------------------------------- |
+ Check sum for particles          |
+ -------------------------------- |
+ vector | Host       | Device     |
+ -------------------------------- |
+ weight |  0.000e+00 |  0.000e+00 | 
+      x |  0.000e+00 |  0.000e+00 | 
+      y |  0.000e+00 |  0.000e+00 | 
+      z |  0.000e+00 |  0.000e+00 | 
+     mx |  0.000e+00 |  0.000e+00 | 
+     my |  0.000e+00 |  0.000e+00 | 
+     mz |  0.000e+00 |  0.000e+00 | 
+     Ex |  0.000e+00 |  0.000e+00 | 
+     Ey |  0.000e+00 |  0.000e+00 | 
+     Ez |  0.000e+00 |  0.000e+00 | 
+     Bx |  0.000e+00 |  0.000e+00 | 
+     By |  0.000e+00 |  0.000e+00 | 
+     Bz |  0.000e+00 |  0.000e+00 | 
+
+ #########    START COMPUTE    ############
+ -----------------------------------------------------|
+           |       |           | Elapsed  | Remaining |
+ Iteration |    %  | Particles | Time (s) | Time (s)  |
+ ----------|-------|-----------|----------|-----------|
+        50 |   8.3 |         0 | 1.35e+00 |  1.49e+01 | 
+       100 |  16.7 |         0 | 2.74e+00 |  1.37e+01 | 
+       150 |  25.0 |         0 | 4.09e+00 |  1.23e+01 | 
+       200 |  33.3 |         0 | 5.49e+00 |  1.10e+01 | 
+       250 |  41.7 |         0 | 6.84e+00 |  9.58e+00 | 
+       300 |  50.0 |         0 | 8.24e+00 |  8.24e+00 | 
+       350 |  58.3 |         0 | 9.59e+00 |  6.85e+00 | 
+       400 |  66.7 |         0 | 1.10e+01 |  5.49e+00 | 
+       450 |  75.0 |         0 | 1.23e+01 |  4.10e+00 | 
+       500 |  83.3 |         0 | 1.37e+01 |  2.74e+00 | 
+       550 |  91.7 |         0 | 1.51e+01 |  1.37e+00 | 
+       600 | 100.0 |         0 | 1.64e+01 |  0.00e+00 | 
+#########    END COMPUTE    ############
+
+
+ ---------------------------------------------- |
+ Global timers                                  |
+ ---------------------------------------------- |
+            code part |  time (s)  | percentage |
+ ---------------------|------------|----------- |
+       initialization |   0.051774 |     0.31 % |
+            main loop |  16.430833 |    99.69 % |
+ ---------------------------------------------- |
+ Main loop                                      |
+ ---------------------------------------------- |
+            code part |  time (s)  | percentage |
+ ---------------------|------------|----------- |
+       PIC iterations |  15.011047 |    90.96 % |
+          Diagnostics |   1.492316 |     9.04 % |
+> mini-minipic finalized
+-- Validation -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+mini-validate --path /gpfs/workdir/cexa-hk24/mini-minipic/build/antenna --setup antenna --threshold 1e-10
+ > Check scalars
+ > Check fields
+    - For field Ex: [np.float64(0.0), np.float64(82.16528908415825), np.float64(344.34858930166956), np.float64(590.8495077993597), np.float64(557.1785762453476), np.float64(835.1262141764289)]
+    - For field Ey: [np.float64(0.0), np.float64(9.971267188545653), np.float64(38.445434161161394), np.float64(65.35670493378103), np.float64(59.67453062284768), np.float64(76.50264530492845)]
+    - For field Ez: [np.float64(0.0), np.float64(774.7241409632109), np.float64(3237.018210646641), np.float64(5666.167748229645), np.float64(6216.341002673892), np.float64(9765.210440891475)]
+    - For field Bx: [np.float64(0.0), np.float64(86.91713443298573), np.float64(355.1215926140226), np.float64(614.3956604220938), np.float64(634.2442079543872), np.float64(881.144118649358)]
+    - For field By: [np.float64(0.0), np.float64(784.3391276892937), np.float64(3246.3762073832368), np.float64(5627.157839639504), np.float64(6428.848152848921), np.float64(9793.622315394427)]
+Setup antenna tested with success
+== Setup e_cst ==============================================================================================================================================================================================
+-- Configuration --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmake /gpfs/workdir/cexa-hk24/mini-minipic -DMINI_MINIPIC_SETUP=e_cst -DMINI_MINIPIC_IMPLEMENTATION=exercise -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=ON
+------------------------------------------------------------------
+CMakeList for (mini)Mini-PIC
+------------------------------------------------------------------
+Build type: Release
+Debug mode: OFF
+Warning mode: OFF
+Kokkos scatter view: OFF
+Implementation: exercise
+Setup: e_cst
+------------------------------------------------------------------
+-- The CXX compiler identification is GNU 13.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /gpfs/softs/spack_0.17/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-13.2.0-pzycn2dcss34kqyoxb5nuxj2y375euym/bin/g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Kokkos provided as a directory: /gpfs/workdir/cexa-hk24/mini-minipic/external/kokkos
+-- Setting default Kokkos CXX standard to 17
+-- Kokkos version: 4.7.1
+-- The project name is: Kokkos
+-- Using internal gtest for testing
+-- Configured git information in /gpfs/workdir/cexa-hk24/mini-minipic/build/e_cst/external/kokkos/generated/Kokkos_Version_Info.cpp
+-- Using -std=gnu++17 for C++17 extensions as feature
+-- Built-in Execution Spaces:
+--     Device Parallel: NoTypeDefined
+--     Host Parallel: Kokkos::OpenMP
+--       Host Serial: NONE
+-- 
+-- Architectures:
+-- Found TPLLIBDL: /usr/include  
+-- Found OpenMP_CXX: -fopenmp (found suitable version "4.5", minimum required is "3.0") 
+-- Found OpenMP: TRUE (found suitable version "4.5", minimum required is "3.0") found components: CXX 
+-- Using internal desul_atomics copy
+-- Performing Test KOKKOS_LINK_OPTIONS_CHECK
+-- Performing Test KOKKOS_LINK_OPTIONS_CHECK - Success
+-- Experimental mdspan support is enabled
+-- Using internal mdspan directory /gpfs/workdir/cexa-hk24/mini-minipic/external/kokkos/tpls/mdspan/include
+-- Kokkos Backends: OPENMP
+-- Configuring done (3.0s)
+-- Generating done (0.5s)
+-- Build files have been written to: /gpfs/workdir/cexa-hk24/mini-minipic/build/e_cst
+-- Compilation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmake --build /gpfs/workdir/cexa-hk24/mini-minipic/build/e_cst --parallel 4
+[  5%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_CPUDiscovery.cpp.o
+[  5%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Abort.cpp.o
+[  8%] Building CXX object external/kokkos/simd/src/CMakeFiles/kokkossimd.dir/Kokkos_SIMD_dummy.cpp.o
+-- Configured git information in /gpfs/workdir/cexa-hk24/mini-minipic/build/e_cst/external/kokkos/generated/Kokkos_Version_Info.cpp
+[ 11%] Linking CXX static library libkokkossimd.a
+[ 11%] Built target AlwaysCheckGit
+[ 14%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Command_Line_Parsing.cpp.o
+[ 14%] Built target kokkossimd
+[ 17%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Core.cpp.o
+[ 20%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Error.cpp.o
+[ 23%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_ExecPolicy.cpp.o
+[ 26%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostBarrier.cpp.o
+[ 29%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostSpace.cpp.o
+[ 32%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostSpace_deepcopy.cpp.o
+[ 35%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostThreadTeam.cpp.o
+[ 38%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_MemoryPool.cpp.o
+[ 41%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Profiling.cpp.o
+[ 44%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_SharedAlloc.cpp.o
+[ 47%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Stacktrace.cpp.o
+[ 50%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_hwloc.cpp.o
+[ 52%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP.cpp.o
+[ 55%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP_Instance.cpp.o
+[ 58%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/OpenMP/Kokkos_OpenMP_Task.cpp.o
+[ 61%] Building CXX object external/kokkos/CMakeFiles/impl_git_version.dir/generated/Kokkos_Version_Info.cpp.o
+[ 64%] Linking CXX static library libimpl_git_version.a
+[ 64%] Built target impl_git_version
+[ 67%] Linking CXX static library libkokkoscore.a
+[ 67%] Built target kokkoscore
+[ 73%] Building CXX object external/kokkos/containers/src/CMakeFiles/kokkoscontainers.dir/impl/Kokkos_UnorderedMap_impl.cpp.o
+[ 73%] Building CXX object external/kokkos/algorithms/src/CMakeFiles/kokkosalgorithms.dir/KokkosAlgorithms_dummy.cpp.o
+[ 76%] Linking CXX static library libkokkosalgorithms.a
+[ 76%] Built target kokkosalgorithms
+[ 79%] Linking CXX static library libkokkoscontainers.a
+[ 79%] Built target kokkoscontainers
+[ 82%] Building CXX object CMakeFiles/mini-minipic.dir/src/common/Params.cpp.o
+[ 91%] Building CXX object CMakeFiles/mini-minipic.dir/src/setups/e_cst.cpp.o
+[ 91%] Building CXX object CMakeFiles/mini-minipic.dir/src/exercise/Managers.cpp.o
+[ 91%] Building CXX object CMakeFiles/mini-minipic.dir/src/common/Tools.cpp.o
+[ 94%] Building CXX object CMakeFiles/mini-minipic.dir/src/exercise/Operators.cpp.o
+[ 97%] Building CXX object CMakeFiles/mini-minipic.dir/src/main.cpp.o
+[100%] Linking CXX executable mini-minipic
+[100%] Built target mini-minipic
+-- Execution ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+OMP_PROC_BIND=spread OMP_PLACES=threads OMP_NUM_THREADS=8 ./mini-minipic
+ __________________________________________________
+
+             o          o                              
+   _  _  _       _  _                                  
+  / |/ |/ |  |  / |/ |  |  _       _       _           
+    |  |  |_/|_/ _|_ |_/|_/_)_ __ (_)_ __ (_) ___      
+                | '_ ` _ \| | '_ \| | '_ \| |/ __|  
+                | | | | | | | | | | | |_) | | (__      
+                |_| |_| |_|_|_| |_|_| .__/|_|\___|    
+                                    |_|                
+
+ __________________________________________________
+
+ Simulation name: Constant electric field
+
+ Input parameters summary: 
+
+ > Time: 
+   - simulation time: 811.899
+   - dt: 0.016238
+   - CFL: 0.0180422
+   - number of iterations: 50000
+
+ > Domain: 
+   - min/max in x: 0 1
+   - min/max in y: 0 1
+   - min/max in z: 0 1
+   - Boundary conditions: periodic
+
+   - cells: 32 32 32
+   - space step: 0.03125 0.03125 0.03125
+
+ > Species 0: electron
+   - mass: 1
+   - charge: -1
+   - particles per cell: 0
+   - temperature: 0.01
+   - drift velocity: 0 0 0
+   - pos init method: random
+   - pos init level: cell
+
+ > Operators: 
+   - Current projection disabled 
+   - Maxwell Solver disabled 
+
+ > Memory usage: 
+   - EM grid size: 307.062 Kb
+   - Current grid size: 364.5 Kb
+   - Total grid size: 2935.88 Kb
+
+ > Timers: 
+   - save timers period: 50001
+   - save timers start: 0
+   - Bufferize timers: 1
+
+ > General diag properties: 
+   - output directory: diags
+   - cloud output period: 1000
+   - field output period: 50001
+   - scalar output period: 100
+
+
+  Kokkos Version: 4.7.1
+Compiler:
+  KOKKOS_COMPILER_GNU: 1320
+Architecture:
+  CPU architecture: none
+  Default Device: OpenMP
+  GPU architecture: none
+  platform: 64bit
+Atomics:
+Vectorization:
+  KOKKOS_ENABLE_PRAGMA_IVDEP: no
+  KOKKOS_ENABLE_PRAGMA_LOOPCOUNT: no
+  KOKKOS_ENABLE_PRAGMA_UNROLL: no
+  KOKKOS_ENABLE_PRAGMA_VECTOR: no
+Memory:
+Options:
+  KOKKOS_ENABLE_ASM: yes
+  KOKKOS_ENABLE_CXX17: yes
+  KOKKOS_ENABLE_CXX20: no
+  KOKKOS_ENABLE_CXX23: no
+  KOKKOS_ENABLE_CXX26: no
+  KOKKOS_ENABLE_DEBUG_BOUNDS_CHECK: no
+  KOKKOS_ENABLE_HWLOC: no
+  KOKKOS_ENABLE_LIBDL: yes
+Host Parallel Execution Space:
+  KOKKOS_ENABLE_OPENMP: yes
+
+OpenMP Runtime Configuration:
+Kokkos::OpenMP thread_pool_topology[ 1 x 8 x 1 ]
+ __________________________________________________
+
+ Initialization
+
+ Field grids: 3.62718 Mb
+
+ > Apply momentum correction 
+
+ Species electron
+ - Initialized particles: 1
+ - Total kinetic energy: 2.96631e-10
+ - Memory footprint: 0.000106812 Mb
+
+ -------------------------------- |
+ Check sum for fields             |
+ -------------------------------- |
+ Field  | Host       | Device     |
+ -------------------------------- |
+ Ex     | -1.851e+03 | -1.851e+03 | 
+ Ey     | -3.703e+02 | -3.703e+02 | 
+ Ez     | -2.962e+03 | -2.962e+03 | 
+ Bx     |  0.000e+00 |  0.000e+00 | 
+ By     |  0.000e+00 |  0.000e+00 | 
+ Bz     |  0.000e+00 |  0.000e+00 | 
+
+ -------------------------------- |
+ Check sum for particles          |
+ -------------------------------- |
+ vector | Host       | Device     |
+ -------------------------------- |
+ weight |  1.000e-03 |  1.000e-03 | 
+      x |  1.000e-01 |  1.000e-01 | 
+      y |  1.000e-01 |  1.000e-01 | 
+      z |  1.000e-01 |  1.000e-01 | 
+     mx | -4.059e-04 | -4.059e-04 | 
+     my | -8.119e-05 | -8.119e-05 | 
+     mz | -6.495e-04 | -6.495e-04 | 
+     Ex | -5.000e-02 | -5.000e-02 | 
+     Ey | -1.000e-02 | -1.000e-02 | 
+     Ez | -8.000e-02 | -8.000e-02 | 
+     Bx |  0.000e+00 |  0.000e+00 | 
+     By |  0.000e+00 |  0.000e+00 | 
+     Bz |  0.000e+00 |  0.000e+00 | 
+
+ #########    START COMPUTE    ############
+ -----------------------------------------------------|
+           |       |           | Elapsed  | Remaining |
+ Iteration |    %  | Particles | Time (s) | Time (s)  |
+ ----------|-------|-----------|----------|-----------|
+     10000 |  20.0 |         1 | 1.84e-01 |  7.36e-01 | 
+     20000 |  40.0 |         1 | 3.63e-01 |  5.44e-01 | 
+     30000 |  60.0 |         1 | 5.39e-01 |  3.59e-01 | 
+     40000 |  80.0 |         1 | 7.15e-01 |  1.79e-01 | 
+     50000 | 100.0 |         1 | 9.11e-01 |  0.00e+00 | 
+#########    END COMPUTE    ############
+
+
+ ---------------------------------------------- |
+ Global timers                                  |
+ ---------------------------------------------- |
+            code part |  time (s)  | percentage |
+ ---------------------|------------|----------- |
+       initialization |   0.010179 |     1.11 % |
+            main loop |   0.910616 |    98.89 % |
+ ---------------------------------------------- |
+ Main loop                                      |
+ ---------------------------------------------- |
+            code part |  time (s)  | percentage |
+ ---------------------|------------|----------- |
+       PIC iterations |   0.530083 |    54.87 % |
+          Diagnostics |   0.435990 |    45.13 % |
+> mini-minipic finalized
+-- Validation -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+mini-validate --path /gpfs/workdir/cexa-hk24/mini-minipic/build/e_cst --setup e_cst --threshold 1e-10
+Setup e_cst tested with success
+== Setup b_cst ==============================================================================================================================================================================================
+-- Configuration --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmake /gpfs/workdir/cexa-hk24/mini-minipic -DMINI_MINIPIC_SETUP=b_cst -DMINI_MINIPIC_IMPLEMENTATION=exercise -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=ON
+------------------------------------------------------------------
+CMakeList for (mini)Mini-PIC
+------------------------------------------------------------------
+Build type: Release
+Debug mode: OFF
+Warning mode: OFF
+Kokkos scatter view: OFF
+Implementation: exercise
+Setup: b_cst
+------------------------------------------------------------------
+-- The CXX compiler identification is GNU 13.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /gpfs/softs/spack_0.17/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-13.2.0-pzycn2dcss34kqyoxb5nuxj2y375euym/bin/g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Kokkos provided as a directory: /gpfs/workdir/cexa-hk24/mini-minipic/external/kokkos
+-- Setting default Kokkos CXX standard to 17
+-- Kokkos version: 4.7.1
+-- The project name is: Kokkos
+-- Using internal gtest for testing
+-- Configured git information in /gpfs/workdir/cexa-hk24/mini-minipic/build/b_cst/external/kokkos/generated/Kokkos_Version_Info.cpp
+-- Using -std=gnu++17 for C++17 extensions as feature
+-- Built-in Execution Spaces:
+--     Device Parallel: NoTypeDefined
+--     Host Parallel: Kokkos::OpenMP
+--       Host Serial: NONE
+-- 
+-- Architectures:
+-- Found TPLLIBDL: /usr/include  
+-- Found OpenMP_CXX: -fopenmp (found suitable version "4.5", minimum required is "3.0") 
+-- Found OpenMP: TRUE (found suitable version "4.5", minimum required is "3.0") found components: CXX 
+-- Using internal desul_atomics copy
+-- Performing Test KOKKOS_LINK_OPTIONS_CHECK
+-- Performing Test KOKKOS_LINK_OPTIONS_CHECK - Success
+-- Experimental mdspan support is enabled
+-- Using internal mdspan directory /gpfs/workdir/cexa-hk24/mini-minipic/external/kokkos/tpls/mdspan/include
+-- Kokkos Backends: OPENMP
+-- Configuring done (1.4s)
+-- Generating done (0.5s)
+-- Build files have been written to: /gpfs/workdir/cexa-hk24/mini-minipic/build/b_cst
+-- Compilation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmake --build /gpfs/workdir/cexa-hk24/mini-minipic/build/b_cst --parallel 4
+[  2%] Building CXX object external/kokkos/simd/src/CMakeFiles/kokkossimd.dir/Kokkos_SIMD_dummy.cpp.o
+[  5%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Abort.cpp.o
+[  8%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_CPUDiscovery.cpp.o
+[ 11%] Linking CXX static library libkokkossimd.a
+-- Configured git information in /gpfs/workdir/cexa-hk24/mini-minipic/build/b_cst/external/kokkos/generated/Kokkos_Version_Info.cpp
+[ 11%] Built target AlwaysCheckGit
+[ 11%] Built target kokkossimd
+[ 14%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Command_Line_Parsing.cpp.o
+[ 17%] Building CXX object external/kokkos/CMakeFiles/impl_git_version.dir/generated/Kokkos_Version_Info.cpp.o
+[ 20%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Core.cpp.o
+[ 23%] Linking CXX static library libimpl_git_version.a
+[ 26%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Error.cpp.o
+[ 26%] Built target impl_git_version
+[ 29%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_ExecPolicy.cpp.o
+[ 32%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostBarrier.cpp.o
+[ 35%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostSpace.cpp.o
+[ 38%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostSpace_deepcopy.cpp.o
+[ 41%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_HostThreadTeam.cpp.o
+[ 44%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_MemoryPool.cpp.o
+[ 47%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Profiling.cpp.o
+[ 50%] Building CXX object external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_SharedAlloc.cpp.o
+^Cgmake[2]: *** [external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Profiling.cpp.o] Interrupt
+gmake[2]: *** [external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Command_Line_Parsing.cpp.o] Interrupt
+gmake[2]: *** [external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_Core.cpp.o] Interrupt
+gmake[2]: *** [external/kokkos/core/src/CMakeFiles/kokkoscore.dir/impl/Kokkos_SharedAlloc.cpp.o] Interrupt
+gmake[1]: *** [external/kokkos/core/src/CMakeFiles/kokkoscore.dir/all] Interrupt
+gmake: *** [all] Interrupt
+Interrumpted by user
